@@ -1,160 +1,72 @@
-# 📚 AI Study Planner & Academic Assistant
+# AIssistant Frontend
 
-An intelligent study companion built with **Next.js** that helps students organize their learning, generate personalized study plans, and get AI-powered academic support.
+Next.js frontend for the AIssistant study app. This app talks to the Fastify backend at https://github.com/sminemb/AIssistant-backend through cookie-authenticated REST endpoints.
 
----
+## Requirements
 
-## ✨ Features
+- Node.js 20 or newer
+- npm
+- Backend running at `http://localhost:4000`
 
-- **AI-Powered Study Plans** — Generate personalized schedules based on your subjects, deadlines, and learning style
-- **Smart Q&A Assistant** — Get instant help with academic questions across any subject
-- **Progress Tracker** — Monitor your study sessions and visualize progress over time
-- **Flashcard Generator** — Auto-generate flashcards from your notes or topics
-- **Deadline Manager** — Never miss an assignment or exam with smart reminders
-
----
-
-## 🛠️ Tech Stack
-
-- **Framework** — [Next.js 14](https://nextjs.org/) (App Router)
-- **Language** — TypeScript
-- **Styling** — Tailwind CSS
-- **AI** — Anthropic Claude API
-- **Database** — PostgreSQL with Prisma ORM
-- **Auth** — NextAuth.js
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js `18.x` or higher
-- npm, yarn, or pnpm
-- An [Anthropic API key](https://console.anthropic.com/)
-
-### Installation
-
-1. **Clone the repository**
-
-```bash
-git clone https://github.com/your-username/ai-study-planner.git
-cd aissistant
-```
-
-2. **Install dependencies**
+## Setup
 
 ```bash
 npm install
-# or
-yarn install
-# or
-pnpm install
-```
-
-3. **Set up environment variables**
-
-```bash
 cp .env.example .env.local
-```
-
-Fill in your `.env.local`:
-
-```env
-ANTHROPIC_API_KEY=your_api_key_here
-DATABASE_URL=your_database_url_here
-NEXTAUTH_SECRET=your_nextauth_secret_here
-NEXTAUTH_URL=http://localhost:3000
-```
-
-4. **Set up the database**
-
-```bash
-npx prisma migrate dev
-npx prisma db seed
-```
-
-5. **Run the development server**
-
-```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open `http://localhost:3000`.
 
----
+## Environment
 
-## 📁 Project Structure
-
-```
-aissistant/
-├── app/
-│   ├── (auth)/
-│   │   ├── login/
-│   │   └── register/
-│   ├── dashboard/
-│   ├── planner/
-│   ├── assistant/
-│   ├── flashcards/
-│   ├── api/
-│   │   ├── ai/
-│   │   └── auth/
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/
-│   ├── ui/
-│   ├── planner/
-│   └── assistant/
-├── lib/
-│   ├── anthropic.ts
-│   ├── prisma.ts
-│   └── utils.ts
-├── prisma/
-│   └── schema.prisma
-├── public/
-├── .env.example
-├── next.config.js
-├── tailwind.config.ts
-└── tsconfig.json
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
 ```
 
----
+## Backend Contract
 
-## 🧪 Available Scripts
+The frontend uses unversioned backend routes:
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run test` | Run tests with Jest |
-| `npm run db:studio` | Open Prisma Studio |
+- `GET /auth/csrf`
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/logout`
+- `GET /auth/me`
+- `GET /dashboard/summary`
+- `GET /study-questions`
+- `POST /study-questions`
+- `GET /quizzes`
+- `POST /quizzes`
+- `GET /quizzes/:quizId`
+- `POST /quizzes/:quizId/submit`
+- `GET /study-progress`
 
----
+Unsafe requests use `credentials: "include"` and send `X-CSRF-Token`. If the backend returns `CSRF_TOKEN_INVALID`, the API client fetches a fresh CSRF token and retries the request once.
 
-## 🤝 Contributing
+## Scripts
 
-Contributions are welcome! Please follow these steps:
+```bash
+npm run dev       # Start local dev server
+npm run build     # Production build
+npm run start     # Start production server
+npm run lint      # ESLint
+npm run test:e2e  # Playwright integration/UI tests
+```
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Commit your changes: `git commit -m 'Add some feature'`
-4. Push to the branch: `git push origin feature/your-feature-name`
-5. Open a Pull Request
+## Testing
 
-Please make sure your code follows the existing style and all tests pass before submitting.
+The Playwright tests mock the backend API at `NEXT_PUBLIC_BACKEND_URL` and cover:
 
----
+- Auth and dashboard load
+- Study Question submission with CSRF retry
+- Quiz generation
+- Quiz submission/review
+- Study Progress refresh
+- Logout
 
-## 📄 License
+Run:
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgements
-
-- [Anthropic](https://www.anthropic.com/) for the Claude API
-- [Vercel](https://vercel.com/) for hosting and the Next.js framework
-- All contributors and open-source libraries used in this project
+```bash
+npm run test:e2e
+```
