@@ -27,7 +27,7 @@ function TabIcon({ icon }: Pick<DashboardTab, "icon">) {
       return <ChatIcon className={className} />;
    }
 
-   if (icon === "tasks") {
+   if (icon === "quiz") {
       return <ListChecksIcon className={className} />;
    }
 
@@ -72,19 +72,19 @@ export function DashboardHeader({
 
    return (
       <header className="relative z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-         <div className="mx-auto flex h-20 w-full max-w-[1400px] items-center justify-between px-4 sm:px-8">
-            <div className="flex items-center gap-10">
+         <div className="mx-auto flex h-16 w-full max-w-[1220px] items-center justify-between px-4 sm:px-6">
+            <div className="flex items-center gap-8">
                <div className="flex items-center gap-3">
                   <div className="grid h-8 w-8 place-items-center rounded-lg bg-blue-600 text-white">
                      <SparklesIcon className="h-4 w-4" />
                   </div>
-                  <span className="text-2xl font-semibold tracking-tight text-slate-900">
+                  <span className="text-xl font-semibold tracking-tight text-slate-900">
                      AIssistant
                   </span>
                </div>
 
                <nav
-                  className="hidden items-center gap-2 md:flex"
+                  className="hidden items-center gap-1 rounded-2xl bg-slate-50 p-1 md:flex"
                   aria-label="Dashboard sections">
                   {tabs.map((tab) => {
                      const isActive = tab.id === activeTabId;
@@ -95,9 +95,9 @@ export function DashboardHeader({
                            type="button"
                            onClick={() => onTabChange(tab.id)}
                            className={[
-                              "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-base font-medium transition",
+                              "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition",
                               isActive
-                                 ? "bg-blue-50 text-blue-700 shadow-[inset_0_0_0_1px_#dbeafe]"
+                                 ? "bg-white text-blue-700 shadow-sm shadow-slate-200/70"
                                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-800",
                            ].join(" ")}>
                            <TabIcon icon={tab.icon} />
@@ -112,7 +112,7 @@ export function DashboardHeader({
                <button
                   type="button"
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="grid h-11 w-11 cursor-pointer place-items-center rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-base font-semibold text-white shadow-md shadow-blue-500/10 transition hover:scale-105 active:scale-95"
+                  className="grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 transition hover:bg-blue-200 active:scale-95"
                   aria-label="Open profile">
                   {initials}
                </button>

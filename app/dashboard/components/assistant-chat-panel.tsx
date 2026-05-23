@@ -6,6 +6,8 @@ import type { ChatMessage, QuickAction } from "./hard-data/dashboard-types";
 type AssistantChatPanelProps = {
    messages: ChatMessage[];
    inputValue: string;
+   submitting?: boolean;
+   className?: string;
    quickActions: QuickAction[];
    onInputChange: (value: string) => void;
    onSubmitMessage: () => void;
@@ -15,6 +17,8 @@ type AssistantChatPanelProps = {
 export function AssistantChatPanel({
    messages,
    inputValue,
+   submitting = false,
+   className = "",
    quickActions,
    onInputChange,
    onSubmitMessage,
@@ -27,17 +31,17 @@ export function AssistantChatPanel({
    }, [messages]);
 
    return (
-      <section className="flex min-h-[620px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-         <header className="flex items-center gap-4 border-b border-slate-100 px-6 py-5">
+      <section className={`flex min-h-[600px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${className}`}>
+         <header className="flex items-center gap-4 border-b border-slate-100 px-6 py-4">
             <div className="relative">
-               <div className="grid h-11 w-11 place-items-center rounded-full bg-blue-100 text-blue-600">
+               <div className="grid h-10 w-10 place-items-center rounded-full bg-blue-100 text-blue-600">
                   <SparklesIcon className="h-5 w-5" />
                </div>
                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-400" />
             </div>
 
             <div>
-               <h2 className="text-xl font-semibold text-slate-900">
+               <h2 className="text-lg font-semibold text-slate-900">
                   AI Study Assistant
                </h2>
                <p className="text-sm text-slate-500">
@@ -66,7 +70,7 @@ export function AssistantChatPanel({
 
                      <p
                         className={[
-                           "max-w-[80%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed",
+                           "max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
                            isAssistant
                               ? "border border-slate-200 bg-white text-slate-700"
                               : "bg-blue-600 text-white",
@@ -80,7 +84,7 @@ export function AssistantChatPanel({
          </div>
 
          <footer className="border-t border-slate-200 px-4 py-4 sm:px-6">
-            <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2">
+            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2">
                <input
                   value={inputValue}
                   onChange={(event) => onInputChange(event.target.value)}
@@ -90,15 +94,17 @@ export function AssistantChatPanel({
                         onSubmitMessage();
                      }
                   }}
+                  disabled={submitting}
                   placeholder="Ask your AI study assistant..."
-                  className="h-11 flex-1 bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
+                  className="h-11 flex-1 bg-transparent text-slate-700 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
                   aria-label="Message your AI assistant"
                />
 
                <button
                   type="button"
                   onClick={onSubmitMessage}
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-500 text-white transition hover:bg-blue-600"
+                  disabled={submitting}
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-blue-500 text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
                   aria-label="Send message">
                   <SendIcon className="h-4 w-4" />
                </button>
@@ -110,7 +116,7 @@ export function AssistantChatPanel({
                      key={action.id}
                      type="button"
                      onClick={() => onQuickAction(action)}
-                     className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:text-blue-700">
+                     className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:text-blue-700">
                      {action.label}
                   </button>
                ))}
