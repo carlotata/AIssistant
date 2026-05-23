@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { apiFetch, ApiError } from "./api";
+import { apiFetch, ApiError, ensureCsrfToken, logoutRequest } from "./api";
 
 export interface Student {
   id: number;
@@ -31,13 +31,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function checkSession() {
       try {
-        // Fetch CSRF first (sets the aissistant_csrf cookie)
-        await apiFetch<{ csrfToken: string }>("/auth/csrf");
+        await ensureCsrfToken();
         
         // Then retrieve current student session
         const data = await apiFetch<{ student: Student }>("/auth/me");
         setStudent(data.student);
-      } catch (err) {
+      } catch {
         // Safe to ignore on mount (means student is guest)
         setStudent(null);
       } finally {
@@ -50,8 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function login(email: string, password: string) {
     setError(null);
     try {
-      // First ensure we have a fresh CSRF cookie
-      await apiFetch<{ csrfToken: string }>("/auth/csrf");
+      await ensureCsrfToken();
       
       const data = await apiFetch<{ student: Student }>("/auth/login", {
         method: "POST",
@@ -72,8 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function register(name: string, email: string, password: string) {
     setError(null);
     try {
-      // First ensure we have a fresh CSRF cookie
-      await apiFetch<{ csrfToken: string }>("/auth/csrf");
+      await ensureCsrfToken();
       
       const data = await apiFetch<{ student: Student }>("/auth/register", {
         method: "POST",
@@ -93,9 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function logout() {
     try {
-      await apiFetch<void>("/auth/logout", {
-        method: "POST",
-      });
+      await logoutRequest();
     } catch (err) {
       console.error("Logout request failed, clearing local state", err);
     } finally {
