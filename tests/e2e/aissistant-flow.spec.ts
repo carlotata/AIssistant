@@ -283,5 +283,5 @@ test("auth, dashboard, study question, quiz, progress, and logout flow", async (
 
   await page.getByRole("button", { name: "Open profile" }).click();
   await page.getByRole("button", { name: "Log Out" }).click();
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL(/\/login/);
 });

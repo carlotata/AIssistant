@@ -1,20 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register } = useAuth();
+  const { register, user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace(user.role === "ADMIN" ? "/admin" : "/dashboard");
+    }
+  }, [user, authLoading, router]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -41,10 +47,10 @@ export default function RegisterPage() {
       return;
     }
 
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       await register(trimmedName, trimmedEmail, password);
-      router.push("/dashboard");
+      router.push("/");
     } catch (err) {
       if (err instanceof Error) {
         setValidationError(err.message);
@@ -52,7 +58,7 @@ export default function RegisterPage() {
         setValidationError("An error occurred during registration. Please try again.");
       }
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   }
 
@@ -185,10 +191,10 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting}
               className="relative mt-2 w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 py-4 font-bold text-white shadow-lg shadow-blue-500/25 transition duration-300 hover:scale-[1.02] hover:from-blue-500 hover:to-indigo-400 active:scale-[0.98] disabled:scale-100 disabled:opacity-50"
             >
-              {loading ? (
+              {isSubmitting ? (
                 <div className="flex items-center justify-center gap-2">
                   <svg
                     className="h-5 w-5 animate-spin text-white"

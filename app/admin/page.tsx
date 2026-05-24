@@ -14,7 +14,9 @@ export default function AdminDashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!authLoading && (!user || user.role !== "ADMIN")) {
+    if (!authLoading && !user) {
+      router.replace(`/login?callbackUrl=${encodeURIComponent("/admin")}`);
+    } else if (!authLoading && user?.role !== "ADMIN") {
       router.replace("/dashboard");
     }
   }, [user, authLoading, router]);

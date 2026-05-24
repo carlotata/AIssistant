@@ -1,18 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const { login, user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace(user.role === "ADMIN" ? "/admin" : "/dashboard");
+    }
+  }, [user, authLoading, router]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -30,15 +38,10 @@ export default function LoginPage() {
       return;
     }
 
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       await login(trimmedEmail, password);
-      // Note: We need to get the user state after login, but since login is async and updates context, 
-      // we might need to rely on the context update or a returned value.
-      // However, usually we can just check the user role if the login function returns it or if we wait for context.
-      // For simplicity, we'll let the dashboard/admin pages handle the role-based redirect via useEffect,
-      // but we can also do a quick check here if we fetch the user immediately.
-      router.push("/dashboard"); 
+      router.push(callbackUrl); 
     } catch (err) {
       if (err instanceof Error) {
         setValidationError(err.message);
@@ -46,7 +49,7 @@ export default function LoginPage() {
         setValidationError("Invalid email or password. Please try again.");
       }
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   }
 
@@ -143,10 +146,10 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting}
               className="relative mt-2 w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 py-4 font-bold text-white shadow-lg shadow-blue-500/25 transition duration-300 hover:scale-[1.02] hover:from-blue-500 hover:to-indigo-400 active:scale-[0.98] disabled:scale-100 disabled:opacity-50"
             >
-              {loading ? (
+              {isSubmitting ? (
                 <div className="flex items-center justify-center gap-2">
                   <svg
                     className="h-5 w-5 animate-spin text-white"

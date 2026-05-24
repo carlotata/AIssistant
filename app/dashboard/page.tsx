@@ -11,9 +11,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login");
+      router.push(`/login?callbackUrl=${encodeURIComponent("/dashboard")}`);
     } else if (!loading && user?.role === "ADMIN") {
-      router.push("/admin");
+      router.replace("/admin");
     }
   }, [user, loading, router]);
 
