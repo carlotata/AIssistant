@@ -31,10 +31,10 @@ export function AssistantChatPanel({
    }, [messages]);
 
    return (
-      <section className={`flex min-h-[600px] flex-col overflow-hidden rounded-3xl border border-white bg-white/70 shadow-premium backdrop-blur-2xl transition-all duration-300 dark:border-slate-800/60 dark:bg-slate-900/50 ${className}`}>
+      <section className={`flex min-h-150 flex-col overflow-hidden rounded-3xl border border-white bg-white/70 shadow-premium backdrop-blur-2xl transition-all duration-300 dark:border-slate-800/60 dark:bg-slate-900/50 ${className}`}>
          <header className="flex items-center gap-4 border-b border-white px-6 py-4 dark:border-slate-800/80">
             <div className="relative">
-               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-tr from-blue-50 to-indigo-50 text-blue-600 shadow-inner dark:from-blue-900/20 dark:to-indigo-900/20 dark:text-blue-400">
+               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-linear-to-tr from-blue-50 to-indigo-50 text-blue-600 shadow-inner dark:from-blue-900/20 dark:to-indigo-900/20 dark:text-blue-400">
                   <SparklesIcon className="h-6 w-6 animate-float" />
                </div>
                <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500 shadow-sm dark:border-slate-900" />

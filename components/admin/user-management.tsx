@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { UsersIcon, TrashIcon, EditIcon, CheckCircleIcon, XCircleIcon, PlusIcon } from "@/components/icons/admin-icons";
@@ -14,21 +17,24 @@ interface User {
   createdAt: string;
 }
 
+const userSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  email: z.string().email("Invalid email address"),
+});
+
+const createAdminSchema = userSchema.extend({
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
 export function UserManagement() {
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
-
-  // Create User Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  
-  // Edit User Modal State
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editEmail, setEditEmail] = useState("");
-  const [editRole, setEditRole] = useState<"STUDENT" | "ADMIN">("STUDENT");
+
+  // --- React Hook Form ---
+  const createForm = useForm({ resolver: zodResolver(createAdminSchema) });
+  const editForm = useForm({ resolver: zodResolver(userSchema) });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["users"],
@@ -43,7 +49,7 @@ export function UserManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       setShowCreateModal(false);
-      setNewName(""); setNewEmail(""); setNewPassword("");
+      createForm.reset();
     },
     onError: (err: ApiError) => alert(err.message || "Failed to create admin"),
   });
@@ -60,268 +66,96 @@ export function UserManagement() {
   const roleMutation = useMutation({
     mutationFn: ({ id, role }: { id: number; role: string }) => apiFetch(`/admin/users/${id}/role`, { method: "PATCH", body: JSON.stringify({ role }) }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
-    onError: (err: ApiError) => alert(err.message || "Failed to update role"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => apiFetch(`/admin/users/${id}`, { method: "DELETE" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
-    onError: (err: ApiError) => alert(err.message || "Failed to delete user"),
   });
 
-  if (isLoading) {
-    return <div className="flex h-64 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div></div>;
-  }
-
-  if (error) {
-    return <div className="rounded-2xl bg-red-50 p-8 text-center border border-red-100"><p className="font-medium text-red-600">Failed to load users.</p></div>;
-  }
+  if (isLoading) return <div className="flex h-64 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div></div>;
 
   const users = data || [];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">User Directory</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Manage all registered users and their permissions.</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-2xl text-sm font-bold dark:bg-blue-900/20 dark:text-blue-400">
-            {users.length} Total Users
-          </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 active:scale-95"
-          >
-            <PlusIcon className="h-4 w-4" />
-            <span>Create Admin</span>
-          </button>
-        </div>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">User Directory</h2>
+        <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700">
+          <PlusIcon className="h-4 w-4" /> Create Admin
+        </button>
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
+        <table className="w-full text-left">
             <thead>
               <tr className="border-b border-slate-50 bg-slate-50/30 dark:border-slate-800 dark:bg-slate-800/50">
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">User</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Role</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Joined</th>
-                <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Actions</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">User</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Role</th>
+                <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
               {users.map((user) => (
-                <tr key={user.id} className="group hover:bg-slate-50/50 transition-colors dark:hover:bg-slate-800/30">
+                <tr key={user.id} className="group hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-tr from-slate-100 to-slate-200 text-sm font-bold text-slate-600 dark:from-slate-800 dark:to-slate-700 dark:text-slate-400">
-                        {user.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-bold text-slate-900 dark:text-white">{user.name}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
-                      </div>
-                    </div>
+                    <p className="font-bold text-slate-900 dark:text-white">{user.name}</p>
+                    <p className="text-xs text-slate-500">{user.email}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider ${
-                      user.role === "ADMIN" 
-                        ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400" 
-                        : "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
-                    {new Date(user.createdAt).toLocaleDateString()}
+                     <select 
+                        className="bg-transparent text-sm text-blue-600 dark:text-blue-400 font-bold"
+                        value={user.role}
+                        onChange={(e) => roleMutation.mutate({ id: user.id, role: e.target.value })}
+                        disabled={currentUser?.id === user.id}
+                     >
+                        <option value="STUDENT">STUDENT</option>
+                        <option value="ADMIN">ADMIN</option>
+                     </select>
                   </td>
                   <td className="px-6 py-4 text-right">
                     {currentUser?.id !== user.id && (
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => {
-                             setEditingUser(user);
-                             setEditName(user.name);
-                             setEditEmail(user.email);
-                             setEditRole(user.role);
-                          }}
-                          disabled={updateMutation.isPending || roleMutation.isPending || deleteMutation.isPending}
-                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors dark:text-slate-500 dark:hover:text-blue-400 dark:hover:bg-blue-900/30"
-                          title="Edit User"
-                        >
-                          <EditIcon className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(`Are you sure you want to delete user "${user.name}"?`)) {
-                              deleteMutation.mutate(user.id);
-                            }
-                          }}
-                          disabled={updateMutation.isPending || roleMutation.isPending || deleteMutation.isPending}
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors dark:text-slate-500 dark:hover:text-red-400 dark:hover:bg-red-900/30"
-                          title="Delete User"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => { setEditingUser(user); editForm.reset(user); }} className="p-2 text-slate-400 hover:text-blue-600"><EditIcon className="h-5 w-5" /></button>
+                        <button onClick={() => deleteMutation.mutate(user.id)} className="p-2 text-slate-400 hover:text-red-600"><TrashIcon className="h-5 w-5" /></button>
                       </div>
                     )}
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+        </table>
       </div>
 
-      {/* Create Admin Modal */}
+      {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300 dark:bg-black/60">
-          <div className="w-full max-w-md scale-100 rounded-3xl border border-white bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-300 dark:border-slate-800 dark:bg-slate-900">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Create New Admin</h3>
-              <button 
-                onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
-              >
-                <XCircleIcon className="h-6 w-6" />
-              </button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 p-8 shadow-2xl">
+                <h3 className="text-xl font-bold mb-4 dark:text-white">Create Admin</h3>
+                <form onSubmit={createForm.handleSubmit((data) => createMutation.mutate(data))} className="space-y-4">
+                    <input {...createForm.register("name")} className="w-full p-3 rounded-xl border dark:bg-slate-800" placeholder="Name" />
+                    {createForm.formState.errors.name && <p className="text-red-500 text-xs">{createForm.formState.errors.name.message}</p>}
+                    <input {...createForm.register("email")} className="w-full p-3 rounded-xl border dark:bg-slate-800" placeholder="Email" />
+                    {createForm.formState.errors.email && <p className="text-red-500 text-xs">{createForm.formState.errors.email.message}</p>}
+                    <input type="password" {...createForm.register("password")} className="w-full p-3 rounded-xl border dark:bg-slate-800" placeholder="Password" />
+                    {createForm.formState.errors.password && <p className="text-red-500 text-xs">{createForm.formState.errors.password.message}</p>}
+                    <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold">Create</button>
+                </form>
             </div>
-
-            <form onSubmit={(e) => {
-               e.preventDefault();
-               createMutation.mutate({ name: newName, email: newEmail, password: newPassword });
-            }} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 dark:text-slate-500">Full Name</label>
-                <input
-                  required
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  className="w-full rounded-2xl border-slate-100 bg-slate-50 px-4 py-3 text-sm font-medium focus:border-blue-500 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:focus:border-blue-500"
-                  placeholder="John Doe"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 dark:text-slate-500">Email Address</label>
-                <input
-                  required
-                  type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  className="w-full rounded-2xl border-slate-100 bg-slate-50 px-4 py-3 text-sm font-medium focus:border-blue-500 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:focus:border-blue-500"
-                  placeholder="john@example.com"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 dark:text-slate-500">Password</label>
-                <input
-                  required
-                  type="password"
-                  minLength={8}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full rounded-2xl border-slate-100 bg-slate-50 px-4 py-3 text-sm font-medium focus:border-blue-500 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:focus:border-blue-500"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <div className="pt-4 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="flex-1 rounded-2xl bg-slate-100 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={createMutation.isPending}
-                  className="flex-1 rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {createMutation.isPending ? "Creating..." : "Create Admin"}
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
       )}
 
-      {/* Edit User Modal */}
+      {/* Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300 dark:bg-black/60">
-          <div className="w-full max-w-md scale-100 rounded-3xl border border-white bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-300 dark:border-slate-800 dark:bg-slate-900">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Edit User</h3>
-              <button 
-                onClick={() => setEditingUser(null)}
-                className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
-              >
-                <XCircleIcon className="h-6 w-6" />
-              </button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 p-8 shadow-2xl">
+                <h3 className="text-xl font-bold mb-4 dark:text-white">Edit User</h3>
+                <form onSubmit={editForm.handleSubmit((data) => updateMutation.mutate({ id: editingUser.id, data }))} className="space-y-4">
+                    <input {...editForm.register("name")} className="w-full p-3 rounded-xl border dark:bg-slate-800" />
+                    <input {...editForm.register("email")} className="w-full p-3 rounded-xl border dark:bg-slate-800" />
+                    <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold">Update</button>
+                </form>
             </div>
-
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              // Update Name/Email
-              updateMutation.mutate({ id: editingUser.id, data: { name: editName, email: editEmail } });
-              // Update Role
-              if (editRole !== editingUser.role) {
-                roleMutation.mutate({ id: editingUser.id, role: editRole });
-              }
-            }} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 dark:text-slate-500">Full Name</label>
-                <input
-                  required
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full rounded-2xl border-slate-100 bg-slate-50 px-4 py-3 text-sm font-medium focus:border-blue-500 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:focus:border-blue-500"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 dark:text-slate-500">Email Address</label>
-                <input
-                  required
-                  type="email"
-                  value={editEmail}
-                  onChange={(e) => setEditEmail(e.target.value)}
-                  className="w-full rounded-2xl border-slate-100 bg-slate-50 px-4 py-3 text-sm font-medium focus:border-blue-500 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:focus:border-blue-500"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 dark:text-slate-500">Role</label>
-                <select
-                  value={editRole}
-                  onChange={(e) => setEditRole(e.target.value as "STUDENT" | "ADMIN")}
-                  className="w-full rounded-2xl border-slate-100 bg-slate-50 px-4 py-3 text-sm font-medium focus:border-blue-500 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:focus:border-blue-500"
-                >
-                  <option value="STUDENT">STUDENT</option>
-                  <option value="ADMIN">ADMIN</option>
-                </select>
-              </div>
-
-              <div className="pt-4 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setEditingUser(null)}
-                  className="flex-1 rounded-2xl bg-slate-100 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={updateMutation.isPending || roleMutation.isPending}
-                  className="flex-1 rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {updateMutation.isPending || roleMutation.isPending ? "Updating..." : "Update User"}
-                </button>
-              </div>
-            </form>
-          </div>
         </div>
       )}
     </div>

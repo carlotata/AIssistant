@@ -78,10 +78,10 @@ export function DashboardHeader({
 
    return (
       <header className="sticky top-0 z-50 border-b border-white bg-white/60 backdrop-blur-2xl dark:border-slate-800/60 dark:bg-slate-950/70">
-         <div className="mx-auto flex h-16 w-full max-w-[1400px] items-center justify-between px-4 sm:px-8">
+         <div className="mx-auto flex h-16 w-full max-w-350 items-center justify-between px-4 sm:px-8">
             <div className="flex items-center gap-8">
                <div className="flex items-center gap-3 transition-transform hover:scale-105">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white shadow-lg shadow-blue-500/20">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-lg shadow-blue-500/20">
                      <SparklesIcon className="h-6 w-6 animate-pulse" />
                   </div>
                   <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
