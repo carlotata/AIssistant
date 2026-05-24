@@ -71,7 +71,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            AIssistant
+            AI<span className="brand-text-gradient">ssistant</span>
           </h1>
           <p className="mt-2 text-sm text-slate-400">
             Welcome back! Sign in to continue your learning journey

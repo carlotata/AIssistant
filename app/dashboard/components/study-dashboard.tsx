@@ -28,15 +28,18 @@ function averageScoreLabel(score: number) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
    return (
-      <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-         {children}
+      <div className="rounded-[2rem] border border-dashed border-slate-300 bg-slate-50/50 px-6 py-12 text-center transition-all duration-300 hover:bg-slate-50">
+         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+            <SparklesIcon className="h-8 w-8 opacity-20" />
+         </div>
+         <p className="text-sm font-semibold text-slate-500">{children}</p>
       </div>
    );
 }
 
-function SectionPanel({ children }: { children: React.ReactNode }) {
+function SectionPanel({ children, className = "" }: { children: React.ReactNode, className?: string }) {
    return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className={`rounded-[2rem] border border-slate-200/60 bg-white p-8 shadow-premium transition-all duration-300 hover:shadow-xl animate-fade-in-up ${className}`}>
          {children}
       </section>
    );
@@ -44,13 +47,13 @@ function SectionPanel({ children }: { children: React.ReactNode }) {
 
 function Metric({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
    return (
-      <div className="flex min-h-24 min-w-0 flex-col items-start justify-between gap-3 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center">
-         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600">
-            {icon ?? <TrendUpIcon className="h-5 w-5" />}
+      <div className="group flex min-h-24 min-w-0 flex-col items-start justify-between gap-4 rounded-[1.5rem] border border-slate-200/50 bg-white p-6 shadow-soft transition-all duration-300 hover:scale-[1.02] hover:border-blue-200 hover:shadow-premium sm:flex-row sm:items-center">
+         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-tr from-blue-50 to-indigo-50 text-blue-600 transition-colors group-hover:from-blue-600 group-hover:to-indigo-500 group-hover:text-white shadow-inner">
+            {icon ?? <TrendUpIcon className="h-7 w-7" />}
          </div>
          <div className="min-w-0 sm:text-right">
-            <p className="text-sm font-medium leading-5 text-slate-500">{label}</p>
-            <p className="mt-2 text-2xl font-semibold leading-none text-slate-950">{value}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{label}</p>
+            <p className="mt-1 text-3xl font-black tabular-nums text-slate-900">{value}</p>
          </div>
       </div>
    );
@@ -58,10 +61,10 @@ function Metric({ label, value, icon }: { label: string; value: string; icon?: R
 
 function ProgressCards({ progress }: { progress: StudyProgress }) {
    return (
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-4">
-         <Metric label="Completed Topics" value={progress.completedTopics.toString()} icon={<ChatIcon className="h-5 w-5" />} />
-         <Metric label="Completed Quizzes" value={progress.totalQuizzes.toString()} icon={<ListChecksIcon className="h-5 w-5" />} />
-         <Metric label="Average Score" value={averageScoreLabel(progress.averageScore)} />
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+         <Metric label="Topics Mastered" value={progress.completedTopics.toString()} icon={<ChatIcon className="h-7 w-7" />} />
+         <Metric label="Quizzes Taken" value={progress.totalQuizzes.toString()} icon={<ListChecksIcon className="h-7 w-7" />} />
+         <Metric label="Avg Accuracy" value={averageScoreLabel(progress.averageScore)} />
       </div>
    );
 }
@@ -69,17 +72,30 @@ function ProgressCards({ progress }: { progress: StudyProgress }) {
 function ProgressPanel({ progress }: { progress: StudyProgress }) {
    return (
       <SectionPanel>
-         <div className="mb-5 flex items-center gap-3">
-            <TrendUpIcon className="h-5 w-5 text-blue-600" />
-            <h2 className="text-xl font-semibold text-slate-900">Study Progress</h2>
+         <div className="mb-8 flex items-center gap-4">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600">
+               <TrendUpIcon className="h-5 w-5" />
+            </div>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900">Study Progress</h2>
          </div>
 
          <ProgressCards progress={progress} />
 
-         <div className="mt-5 rounded-2xl bg-blue-50 px-4 py-3 text-sm text-blue-800">
-            {progress.totalQuizzes > 0
-               ? `You have completed ${progress.totalQuizzes} quiz${progress.totalQuizzes === 1 ? "" : "zes"} with an average score of ${averageScoreLabel(progress.averageScore)}.`
-               : "Complete a generated quiz to start building your progress record."}
+         <div className="mt-8 rounded-2xl bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-100/50 p-5">
+            <div className="flex items-center gap-4">
+               <div className="h-2 flex-1 rounded-full bg-slate-200 overflow-hidden">
+                  <div 
+                     className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 transition-all duration-1000" 
+                     style={{ width: `${Math.max(15, progress.averageScore)}%` }}
+                  />
+               </div>
+               <span className="text-sm font-bold text-blue-700">{averageScoreLabel(progress.averageScore)}</span>
+            </div>
+            <p className="mt-4 text-sm font-medium text-slate-600">
+               {progress.totalQuizzes > 0
+                  ? `Excellent work! You've tackled ${progress.totalQuizzes} quizzes. Keep pushing that average score higher.`
+                  : "Start your journey by generating your first quiz below."}
+            </p>
          </div>
       </SectionPanel>
    );
@@ -88,20 +104,25 @@ function ProgressPanel({ progress }: { progress: StudyProgress }) {
 function QuestionsPanel({ questions, title }: { questions: StudyQuestion[]; title: string }) {
    return (
       <SectionPanel>
-         <div className="mb-5 flex items-center gap-3">
-            <ChatIcon className="h-5 w-5 text-blue-600" />
-            <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
+         <div className="mb-8 flex items-center gap-4">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600">
+               <ChatIcon className="h-5 w-5" />
+            </div>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900">{title}</h2>
          </div>
 
          {questions.length === 0 ? (
             <EmptyState>Ask a study question to save your first answer.</EmptyState>
          ) : (
-            <div className="space-y-3">
+            <div className="grid gap-4">
                {questions.map((question) => (
-                  <article key={question.id} className="rounded-2xl bg-slate-50 p-4">
-                     <p className="text-sm font-semibold text-slate-900">{question.questionText}</p>
-                     <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{question.chatbotResponse}</p>
-                     <p className="mt-3 text-xs font-medium text-slate-400">{formatDate(question.createdAt)}</p>
+                  <article key={question.id} className="group relative rounded-2xl border border-slate-100 bg-slate-50/50 p-5 transition-all hover:bg-white hover:shadow-premium">
+                     <p className="text-sm font-bold text-slate-900 line-clamp-1">{question.questionText}</p>
+                     <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-600">{question.chatbotResponse}</p>
+                     <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{formatDate(question.createdAt)}</span>
+                        <div className="h-1.5 w-1.5 rounded-full bg-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                     </div>
                   </article>
                ))}
             </div>
@@ -121,34 +142,36 @@ function QuizzesPanel({
 }) {
    return (
       <SectionPanel>
-         <div className="mb-5 flex items-center gap-3">
-            <ListChecksIcon className="h-5 w-5 text-blue-600" />
-            <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
+         <div className="mb-8 flex items-center gap-4">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600">
+               <ListChecksIcon className="h-5 w-5" />
+            </div>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900">{title}</h2>
          </div>
 
          {quizzes.length === 0 ? (
             <EmptyState>Generated quizzes will appear here.</EmptyState>
          ) : (
-            <div className="space-y-3">
+            <div className="grid gap-4">
                {quizzes.map((quiz) => (
                   <button
                      key={quiz.id}
                      type="button"
                      onClick={() => onSelectQuiz(quiz.id)}
-                     className="block w-full rounded-xl bg-slate-50 p-4 text-left transition hover:bg-blue-50">
-                     <div className="flex items-start justify-between gap-3">
-                        <div>
-                           <p className="text-sm font-semibold text-slate-900">{quiz.quizTopic}</p>
-                           <p className="mt-1 text-xs font-medium text-slate-400">{formatDate(quiz.createdAt)}</p>
+                     className="group block w-full rounded-2xl border border-slate-100 bg-slate-50/50 p-5 text-left transition-all hover:border-blue-200 hover:bg-white hover:shadow-premium">
+                     <div className="flex items-center justify-between gap-4">
+                        <div className="min-w-0">
+                           <p className="text-sm font-bold text-slate-900 truncate">{quiz.quizTopic}</p>
+                           <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">{formatDate(quiz.createdAt)}</p>
                         </div>
                         <span
                            className={[
-                              "rounded-full px-3 py-1 text-xs font-semibold",
+                              "shrink-0 rounded-xl px-4 py-1.5 text-xs font-black uppercase tracking-wider shadow-sm",
                               quiz.state === "COMPLETED"
-                                 ? "bg-emerald-100 text-emerald-700"
-                                 : "bg-amber-100 text-amber-700",
+                                 ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100"
+                                 : "bg-blue-50 text-blue-600 ring-1 ring-blue-100",
                            ].join(" ")}>
-                           {quiz.state === "COMPLETED" ? `Score ${averageScoreLabel(quiz.score ?? 0)}` : "Generated"}
+                           {quiz.state === "COMPLETED" ? `Score: ${averageScoreLabel(quiz.score ?? 0)}` : "Start Quiz"}
                         </span>
                      </div>
                   </button>
@@ -161,10 +184,14 @@ function QuizzesPanel({
 
 function DashboardSkeleton() {
    return (
-      <div className="grid gap-4">
-         {[0, 1, 2].map((item) => (
-            <div key={item} className="h-28 animate-pulse rounded-3xl bg-white" />
-         ))}
+      <div className="grid gap-6">
+         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+               <div key={i} className="h-32 animate-pulse rounded-[1.5rem] bg-white shadow-soft" />
+            ))}
+         </div>
+         <div className="h-64 animate-pulse rounded-[2rem] bg-white shadow-premium" />
+         <div className="h-96 animate-pulse rounded-[2rem] bg-white shadow-premium" />
       </div>
    );
 }
@@ -338,110 +365,129 @@ export function StudyDashboard() {
 
    const quizPanel = (
       <SectionPanel>
-         <div className="mb-5 flex items-center gap-3">
-            <ListChecksIcon className="h-5 w-5 text-blue-600" />
-            <h2 className="text-xl font-semibold text-slate-900">Create Quiz</h2>
+         <div className="mb-8 flex items-center gap-4">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600">
+               <ListChecksIcon className="h-5 w-5" />
+            </div>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900">Create Quiz</h2>
          </div>
 
-         <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_120px_auto]">
+         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_140px_140px]">
             <input
                value={quizTopic}
                onChange={(event) => setQuizTopic(event.target.value)}
-               placeholder="Enter a quiz topic..."
+               placeholder="Topic (e.g. Quantum Physics, History...)"
                disabled={quizLoading}
-               className="h-12 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+               className="h-14 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-5 text-sm font-bold text-slate-700 outline-none transition-all focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
             />
-            <label className="sr-only" htmlFor="quiz-question-count">
-               Quiz question count
-            </label>
-            <select
-               id="quiz-question-count"
-               value={quizQuestionCount}
-               onChange={(event) => setQuizQuestionCount(Number(event.target.value))}
-               disabled={quizLoading}
-               className="h-12 rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-700 outline-none transition focus:border-blue-300 focus:bg-white focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
-               aria-label="Quiz question count">
-               {[3, 5, 7, 10].map((count) => (
-                  <option key={count} value={count}>
-                     {count} Qs
-                  </option>
-               ))}
-            </select>
+            <div className="relative">
+               <select
+                  id="quiz-question-count"
+                  value={quizQuestionCount}
+                  onChange={(event) => setQuizQuestionCount(Number(event.target.value))}
+                  disabled={quizLoading}
+                  className="h-14 w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-5 text-sm font-black text-slate-700 outline-none transition-all focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  aria-label="Quiz question count">
+                  {[3, 5, 7, 10].map((count) => (
+                     <option key={count} value={count}>
+                        {count} Questions
+                     </option>
+                  ))}
+               </select>
+               <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                  </svg>
+               </div>
+            </div>
             <button
                type="button"
                onClick={() => createQuiz(quizTopic)}
                disabled={quizLoading || !quizTopic.trim()}
-               className="h-12 rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
-               {quizLoading ? "Working..." : "Generate"}
+               className="h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 px-6 text-sm font-black text-white shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-50 disabled:grayscale">
+               {quizLoading ? "Generating..." : "Generate"}
             </button>
          </div>
 
          {quizError && (
-            <div className="mt-4 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-bold text-red-600">
+               <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+               </svg>
                {quizError}
             </div>
          )}
 
          {activeQuiz?.questions && (
-            <div className="mt-6 space-y-4">
-               <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="mt-10 space-y-6 animate-fade-in-up">
+               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-6">
                   <div>
-                     <p className="text-sm font-medium text-slate-500">Active quiz</p>
-                     <h3 className="text-lg font-semibold text-slate-950">{activeQuiz.quizTopic}</h3>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-blue-600">Active Quiz Session</p>
+                     <h3 className="mt-1 text-xl font-black text-slate-900">{activeQuiz.quizTopic}</h3>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                     {activeQuiz.state === "COMPLETED" ? `Score ${averageScoreLabel(activeQuiz.score ?? 0)}` : "Generated"}
+                  <span className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest ${
+                     activeQuiz.state === "COMPLETED" ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100" : "bg-blue-50 text-blue-600 ring-1 ring-blue-100"
+                  }`}>
+                     {activeQuiz.state === "COMPLETED" ? `Accuracy: ${averageScoreLabel(activeQuiz.score ?? 0)}` : "In Progress"}
                   </span>
                </div>
 
-               {activeQuiz.questions.map((question) => (
-                  <fieldset key={question.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                     <legend className="px-1 text-sm font-semibold text-slate-900">
-                        {question.position}. {question.questionText}
-                     </legend>
-                     <div className="mt-3 grid gap-2">
-                        {question.options.map((option) => {
-                           const isSelected = selectedAnswers[question.id] === option.id;
-                           const isCompleted = activeQuiz.state === "COMPLETED";
-                           const isCorrect = option.isCorrect === true;
+               <div className="space-y-8">
+                  {activeQuiz.questions.map((question) => (
+                     <fieldset key={question.id} className="space-y-4">
+                        <legend className="text-base font-bold text-slate-900">
+                           <span className="mr-2 text-blue-600 opacity-50">{question.position}.</span>
+                           {question.questionText}
+                        </legend>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                           {question.options.map((option) => {
+                              const isSelected = selectedAnswers[question.id] === option.id;
+                              const isCompleted = activeQuiz.state === "COMPLETED";
+                              const isCorrect = option.isCorrect === true;
 
-                           return (
-                              <label
-                                 key={option.id}
-                                 className={[
-                                    "flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-3 text-sm transition",
-                                    isSelected ? "border-blue-300 bg-white text-slate-950" : "border-slate-200 bg-white text-slate-600",
-                                    isCompleted && isCorrect ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "",
-                                    isCompleted && isSelected && !isCorrect ? "border-red-200 bg-red-50 text-red-700" : "",
-                                 ].join(" ")}>
-                                 <input
-                                    type="radio"
-                                    name={`question-${question.id}`}
-                                    checked={isSelected}
-                                    disabled={isCompleted}
-                                    onChange={() =>
-                                       setSelectedAnswers((prev) => ({
-                                          ...prev,
-                                          [question.id]: option.id,
-                                       }))
-                                    }
-                                    className="mt-0.5 h-4 w-4"
-                                 />
-                                 <span>{option.optionText}</span>
-                              </label>
-                           );
-                        })}
-                     </div>
-                  </fieldset>
-               ))}
+                              return (
+                                 <label
+                                    key={option.id}
+                                    className={[
+                                       "relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 text-sm font-bold transition-all duration-200",
+                                       isSelected ? "border-blue-400 bg-blue-50/30 text-slate-900 shadow-sm" : "border-slate-100 bg-white text-slate-600 hover:border-slate-200 hover:bg-slate-50",
+                                       isCompleted && isCorrect ? "border-emerald-500 bg-emerald-50/50 text-emerald-900 ring-1 ring-emerald-500/20" : "",
+                                       isCompleted && isSelected && !isCorrect ? "border-red-500 bg-red-50/50 text-red-900 ring-1 ring-red-500/20" : "",
+                                    ].join(" ")}>
+                                    <input
+                                       type="radio"
+                                       name={`question-${question.id}`}
+                                       checked={isSelected}
+                                       disabled={isCompleted}
+                                       onChange={() =>
+                                          setSelectedAnswers((prev) => ({
+                                             ...prev,
+                                             [question.id]: option.id,
+                                          }))
+                                       }
+                                       className="h-5 w-5 accent-blue-600"
+                                    />
+                                    <span>{option.optionText}</span>
+                                    {isCompleted && isCorrect && (
+                                       <div className="absolute right-4 text-emerald-600">
+                                          <CheckCircleIcon className="h-5 w-5" />
+                                       </div>
+                                    )}
+                                 </label>
+                              );
+                           })}
+                        </div>
+                     </fieldset>
+                  ))}
+               </div>
 
                {activeQuiz.state !== "COMPLETED" && (
                   <button
                      type="button"
                      onClick={submitQuiz}
                      disabled={quizLoading}
-                     className="h-12 w-full rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
-                     Submit Quiz
+                     className="mt-8 h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 text-sm font-black text-white shadow-xl shadow-blue-500/30 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50">
+                     Complete & See Score
                   </button>
                )}
             </div>
@@ -456,7 +502,7 @@ export function StudyDashboard() {
 
       if (activeTabId === "chat") {
          return (
-            <div className="space-y-6">
+            <div className="space-y-8">
                <AssistantChatPanel
                   messages={messages}
                   inputValue={inputValue}
@@ -470,10 +516,10 @@ export function StudyDashboard() {
                   <DashboardSkeleton />
                ) : questionsError ? (
                   <SectionPanel>
-                     <p className="text-sm text-red-600">{questionsError}</p>
+                     <p className="text-sm font-bold text-red-500">{questionsError}</p>
                   </SectionPanel>
                ) : (
-                  <QuestionsPanel title="Saved Questions" questions={allQuestions} />
+                  <QuestionsPanel title="Knowledge Bank" questions={allQuestions} />
                )}
             </div>
          );
@@ -481,18 +527,18 @@ export function StudyDashboard() {
 
       if (activeTabId === "quizzes") {
          return (
-            <>
+            <div className="space-y-8">
                {quizPanel}
                {quizzesLoading ? (
                   <DashboardSkeleton />
                ) : quizzesError ? (
                   <SectionPanel>
-                     <p className="text-sm text-red-600">{quizzesError}</p>
+                     <p className="text-sm font-bold text-red-500">{quizzesError}</p>
                   </SectionPanel>
                ) : (
-                  <QuizzesPanel title="All Quizzes" quizzes={allQuizzes} onSelectQuiz={openQuiz} />
+                  <QuizzesPanel title="Quiz History" quizzes={allQuizzes} onSelectQuiz={openQuiz} />
                )}
-            </>
+            </div>
          );
       }
 
@@ -504,7 +550,7 @@ export function StudyDashboard() {
          if (progressError) {
             return (
                <SectionPanel>
-                  <p className="text-sm text-red-600">{progressError}</p>
+                  <p className="text-sm font-bold text-red-500">{progressError}</p>
                </SectionPanel>
             );
          }
@@ -513,12 +559,12 @@ export function StudyDashboard() {
       }
 
       return (
-         <>
+         <div className="space-y-8">
             <ProgressCards progress={summary.studyProgress} />
-            <QuestionsPanel title="Recent Questions" questions={summary.recentStudyQuestions} />
+            <QuestionsPanel title="Recent Insights" questions={summary.recentStudyQuestions} />
             {quizPanel}
             <QuizzesPanel title="Recent Quizzes" quizzes={summary.recentQuizzes} onSelectQuiz={openQuiz} />
-         </>
+         </div>
       );
    }
 
@@ -598,39 +644,49 @@ export function StudyDashboard() {
    }
 
    return (
-      <div className="min-h-screen bg-[#f7f8fb] text-slate-900">
+      <div className="min-h-screen bg-[#f8fafc] text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+         {/* Background Decor */}
+         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+            <div className="absolute -top-[10%] -left-[10%] h-[40%] w-[40%] rounded-full bg-blue-400/5 blur-[120px]" />
+            <div className="absolute top-[20%] -right-[10%] h-[50%] w-[50%] rounded-full bg-indigo-400/5 blur-[120px]" />
+         </div>
+
          <DashboardHeader tabs={DASHBOARD_TABS} activeTabId={activeTabId} onTabChange={handleTabChange} />
 
          <main
             className={[
-               "mx-auto grid w-full gap-6 px-4 py-6 sm:px-6",
+               "relative z-10 mx-auto grid w-full gap-8 px-4 py-8 sm:px-8",
                activeTabId === "chat"
-                  ? "max-w-[900px]"
-                  : "max-w-[1220px] xl:grid-cols-[minmax(330px,0.46fr)_minmax(0,1fr)]",
+                  ? "max-w-[1000px]"
+                  : "max-w-[1400px] xl:grid-cols-[minmax(0,1fr)_420px]",
             ].join(" ")}>
-            <section className="space-y-6">
+            <section className="min-w-0">
                {loadingSummary ? (
                   <DashboardSkeleton />
                ) : summaryError ? (
-                  <section className="rounded-3xl border border-red-100 bg-white p-6 text-sm text-red-600 shadow-sm">
-                     {summaryError}
-                  </section>
+                  <SectionPanel className="border-red-100 bg-red-50/30 text-red-600">
+                     <p className="text-sm font-bold">{summaryError}</p>
+                  </SectionPanel>
                ) : (
                   renderVisiblePanels()
                )}
             </section>
 
             {activeTabId !== "chat" && (
-               <AssistantChatPanel
-                  messages={messages}
-                  inputValue={inputValue}
-                  submitting={submitting}
-                  className="xl:min-h-[690px]"
-                  quickActions={QUICK_ACTIONS}
-                  onInputChange={setInputValue}
-                  onSubmitMessage={handleSubmitMessage}
-                  onQuickAction={handleQuickAction}
-               />
+               <aside className="hidden xl:block">
+                  <div className="sticky top-24">
+                     <AssistantChatPanel
+                        messages={messages}
+                        inputValue={inputValue}
+                        submitting={submitting}
+                        className="h-[calc(100vh-140px)]"
+                        quickActions={QUICK_ACTIONS}
+                        onInputChange={setInputValue}
+                        onSubmitMessage={handleSubmitMessage}
+                        onQuickAction={handleQuickAction}
+                     />
+                  </div>
+               </aside>
             )}
          </main>
       </div>

@@ -8,14 +8,14 @@ export function SparklesIcon(props: IconProps) {
       <path
         d="M12 2.5L14.2 8l5.3 2-5.3 2-2.2 5.5-2.2-5.5-5.3-2 5.3-2L12 2.5Z"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M18.8 2.8l.8 2 .8.8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2Z"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -26,10 +26,10 @@ export function SparklesIcon(props: IconProps) {
 export function GridIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-      <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-      <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-      <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
-      <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.8" />
+      <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }
@@ -40,7 +40,7 @@ export function ChatIcon(props: IconProps) {
       <path
         d="M6 17.5 3 21v-4.4A8 8 0 1 1 9 20h-.7"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -51,12 +51,12 @@ export function ChatIcon(props: IconProps) {
 export function ListChecksIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-      <path d="m4.5 6.5 1.7 1.7L9 5.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M11 7h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="m4.5 12.5 1.7 1.7L9 11.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M11 13h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="m4.5 18.5 1.7 1.7L9 17.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M11 19h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="m4.5 6.5 1.7 1.7L9 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11 7h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="m4.5 12.5 1.7 1.7L9 11.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11 13h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="m4.5 18.5 1.7 1.7L9 17.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11 19h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -64,8 +64,8 @@ export function ListChecksIcon(props: IconProps) {
 export function TrendUpIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-      <path d="m4 16 5-5 4 4 7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M15 8h5v5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m4 16 5-5 4 4 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M15 8h5v5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -73,9 +73,9 @@ export function TrendUpIcon(props: IconProps) {
 export function CalendarIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-      <rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M3 9h18" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M8 2.8v3.4M16 2.8v3.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" strokeWidth="2" />
+      <path d="M3 9h18" stroke="currentColor" strokeWidth="2" />
+      <path d="M8 2.8v3.4M16 2.8v3.4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -83,8 +83,8 @@ export function CalendarIcon(props: IconProps) {
 export function CheckSquareIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-      <rect x="3" y="3" width="18" height="18" rx="2.8" stroke="currentColor" strokeWidth="1.8" />
-      <path d="m8 12 2.6 2.6L16.5 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="3" y="3" width="18" height="18" rx="2.8" stroke="currentColor" strokeWidth="2" />
+      <path d="m8 12 2.6 2.6L16.5 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -92,7 +92,7 @@ export function CheckSquareIcon(props: IconProps) {
 export function SendIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-      <path d="m20 4-8.3 16-1.8-6-6-1.8L20 4Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m20 4-8.3 16-1.8-6-6-1.8L20 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -100,7 +100,7 @@ export function SendIcon(props: IconProps) {
 export function CircleIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="2" />
     </svg>
   );
 }
@@ -108,8 +108,8 @@ export function CircleIcon(props: IconProps) {
 export function CheckCircleIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
-      <path d="m8.4 12.1 2.2 2.2 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="2" />
+      <path d="m8.4 12.1 2.2 2.2 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

@@ -82,7 +82,7 @@ export default function RegisterPage() {
             </svg>
           </div>
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            AIssistant
+            AI<span className="brand-text-gradient">ssistant</span>
           </h1>
           <p className="mt-2 text-sm text-slate-400">
             Create your account to start studying smarter
