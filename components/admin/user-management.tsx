@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { UsersIcon, TrashIcon, EditIcon, CheckCircleIcon, XCircleIcon, PlusIcon } from "../icons/admin-icons";
+import { UsersIcon, TrashIcon, EditIcon, CheckCircleIcon, XCircleIcon, PlusIcon } from "@/components/icons/admin-icons";
 
 interface User {
   id: number;
@@ -15,149 +16,68 @@ interface User {
 
 export function UserManagement() {
   const { user: currentUser } = useAuth();
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState<number | null>(null);
-  
+  const queryClient = useQueryClient();
+
   // Create User Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [createLoading, setCreateLoading] = useState(false);
-
+  
   // Edit User Modal State
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editRole, setEditRole] = useState<"STUDENT" | "ADMIN">("STUDENT");
-  const [updateLoading, setUpdateLoading] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const res = await apiFetch<{ users: User[] }>("/admin/users");
+      return res.users;
+    },
+  });
 
-  async function fetchUsers() {
-    try {
-      setLoading(true);
-      const data = await apiFetch<{ users: User[] }>("/admin/users");
-      setUsers(data.users);
-      setError(null);
-    } catch (err) {
-      console.error("Failed to fetch users", err);
-      setError("Failed to load users. Please make sure you have admin privileges.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleCreateAdmin(e: React.FormEvent) {
-    e.preventDefault();
-    try {
-      setCreateLoading(true);
-      await apiFetch("/admin/create", {
-        method: "POST",
-        body: JSON.stringify({
-          name: newName,
-          email: newEmail,
-          password: newPassword,
-        }),
-      });
+  const createMutation = useMutation({
+    mutationFn: (body: any) => apiFetch("/admin/create", { method: "POST", body: JSON.stringify(body) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       setShowCreateModal(false);
-      setNewName("");
-      setNewEmail("");
-      setNewPassword("");
-      await fetchUsers();
-    } catch (err) {
-      const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to create admin");
-    } finally {
-      setCreateLoading(false);
-    }
-  }
+      setNewName(""); setNewEmail(""); setNewPassword("");
+    },
+    onError: (err: ApiError) => alert(err.message || "Failed to create admin"),
+  });
 
-  const openEditModal = (user: User) => {
-    setEditingUser(user);
-    setEditName(user.name);
-    setEditEmail(user.email);
-    setEditRole(user.role);
-  };
-
-  async function handleUpdateUser(e: React.FormEvent) {
-    e.preventDefault();
-    if (!editingUser) return;
-
-    try {
-      setUpdateLoading(true);
-      
-      // Update Name and Email
-      if (editName !== editingUser.name || editEmail !== editingUser.email) {
-        await apiFetch(`/admin/users/${editingUser.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({ name: editName, email: editEmail }),
-        });
-      }
-
-      // Update Role if changed
-      if (editRole !== editingUser.role) {
-        await apiFetch(`/admin/users/${editingUser.id}/role`, {
-          method: "PATCH",
-          body: JSON.stringify({ role: editRole }),
-        });
-      }
-
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => apiFetch(`/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       setEditingUser(null);
-      await fetchUsers();
-    } catch (err) {
-      const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to update user");
-    } finally {
-      setUpdateLoading(false);
-    }
-  }
+    },
+    onError: (err: ApiError) => alert(err.message || "Failed to update user"),
+  });
 
-  async function handleDeleteUser(userId: number, name: string) {
-    if (!confirm(`Are you sure you want to delete user "${name}"? This action cannot be undone.`)) {
-      return;
-    }
+  const roleMutation = useMutation({
+    mutationFn: ({ id, role }: { id: number; role: string }) => apiFetch(`/admin/users/${id}/role`, { method: "PATCH", body: JSON.stringify({ role }) }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
+    onError: (err: ApiError) => alert(err.message || "Failed to update role"),
+  });
 
-    try {
-      setActionLoading(userId);
-      await apiFetch(`/admin/users/${userId}`, {
-        method: "DELETE",
-      });
-      // Refresh user list
-      await fetchUsers();
-    } catch (err) {
-      const apiErr = err as ApiError;
-      alert(apiErr.message || "Failed to delete user");
-    } finally {
-      setActionLoading(null);
-    }
-  }
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => apiFetch(`/admin/users/${id}`, { method: "DELETE" }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }),
+    onError: (err: ApiError) => alert(err.message || "Failed to delete user"),
+  });
 
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
-      </div>
-    );
+  if (isLoading) {
+    return <div className="flex h-64 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div></div>;
   }
 
   if (error) {
-    return (
-      <div className="rounded-2xl bg-red-50 p-8 text-center border border-red-100">
-        <p className="font-medium text-red-600">{error}</p>
-        <button 
-          onClick={fetchUsers}
-          className="mt-4 rounded-xl bg-white px-4 py-2 text-sm font-bold text-red-600 shadow-sm ring-1 ring-red-200 hover:bg-red-50"
-        >
-          Try Again
-        </button>
-      </div>
-    );
+    return <div className="rounded-2xl bg-red-50 p-8 text-center border border-red-100"><p className="font-medium text-red-600">Failed to load users.</p></div>;
   }
+
+  const users = data || [];
 
   return (
     <div className="space-y-6">
@@ -221,16 +141,25 @@ export function UserManagement() {
                     {currentUser?.id !== user.id && (
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
-                          onClick={() => openEditModal(user)}
-                          disabled={actionLoading === user.id}
+                          onClick={() => {
+                             setEditingUser(user);
+                             setEditName(user.name);
+                             setEditEmail(user.email);
+                             setEditRole(user.role);
+                          }}
+                          disabled={updateMutation.isPending || roleMutation.isPending || deleteMutation.isPending}
                           className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors dark:text-slate-500 dark:hover:text-blue-400 dark:hover:bg-blue-900/30"
                           title="Edit User"
                         >
                           <EditIcon className="h-5 w-5" />
                         </button>
                         <button
-                          onClick={() => handleDeleteUser(user.id, user.name)}
-                          disabled={actionLoading === user.id}
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete user "${user.name}"?`)) {
+                              deleteMutation.mutate(user.id);
+                            }
+                          }}
+                          disabled={updateMutation.isPending || roleMutation.isPending || deleteMutation.isPending}
                           className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors dark:text-slate-500 dark:hover:text-red-400 dark:hover:bg-red-900/30"
                           title="Delete User"
                         >
@@ -260,7 +189,10 @@ export function UserManagement() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateAdmin} className="space-y-4">
+            <form onSubmit={(e) => {
+               e.preventDefault();
+               createMutation.mutate({ name: newName, email: newEmail, password: newPassword });
+            }} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 dark:text-slate-500">Full Name</label>
                 <input
@@ -306,10 +238,10 @@ export function UserManagement() {
                 </button>
                 <button
                   type="submit"
-                  disabled={createLoading}
+                  disabled={createMutation.isPending}
                   className="flex-1 rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {createLoading ? "Creating..." : "Create Admin"}
+                  {createMutation.isPending ? "Creating..." : "Create Admin"}
                 </button>
               </div>
             </form>
@@ -331,7 +263,15 @@ export function UserManagement() {
               </button>
             </div>
 
-            <form onSubmit={handleUpdateUser} className="space-y-4">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              // Update Name/Email
+              updateMutation.mutate({ id: editingUser.id, data: { name: editName, email: editEmail } });
+              // Update Role
+              if (editRole !== editingUser.role) {
+                roleMutation.mutate({ id: editingUser.id, role: editRole });
+              }
+            }} className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-1 dark:text-slate-500">Full Name</label>
                 <input
@@ -374,10 +314,10 @@ export function UserManagement() {
                 </button>
                 <button
                   type="submit"
-                  disabled={updateLoading}
+                  disabled={updateMutation.isPending || roleMutation.isPending}
                   className="flex-1 rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {updateLoading ? "Updating..." : "Update User"}
+                  {updateMutation.isPending || roleMutation.isPending ? "Updating..." : "Update User"}
                 </button>
               </div>
             </form>

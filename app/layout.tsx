@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { ThemeProvider } from "next-themes";
+import { Providers } from "@/components/shared/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,11 +35,12 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans antialiased transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="light">
           <AuthProvider>
-            {children}
+            <Providers>
+              {children}
+            </Providers>
           </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
-
