@@ -129,7 +129,7 @@ export function UserManagement() {
 
       {/* Create Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 p-8 shadow-2xl">
                 <h3 className="text-xl font-bold mb-4 dark:text-white">Create Admin</h3>
                 <form onSubmit={createForm.handleSubmit((data) => createMutation.mutate(data))} className="space-y-4">
@@ -147,7 +147,7 @@ export function UserManagement() {
 
       {/* Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 p-8 shadow-2xl">
                 <h3 className="text-xl font-bold mb-4 dark:text-white">Edit User</h3>
                 <form onSubmit={editForm.handleSubmit((data) => updateMutation.mutate({ id: editingUser.id, data }))} className="space-y-4">

@@ -66,17 +66,17 @@ export function AssistantChatPanel({
                            : "flex justify-end animate-fade-in-up"
                      }>
                      {isAssistant && (
-                        <div className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
+                        <div className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
                            <SparklesIcon className="h-5 w-5" />
                         </div>
                      )}
 
                      <div
                         className={[
-                           "max-w-[85%] rounded-[1.5rem] px-5 py-3.5 text-sm leading-relaxed shadow-sm transition-all duration-200",
+                           "max-w-[85%] rounded-3xl px-5 py-3.5 text-sm leading-relaxed shadow-sm transition-all duration-200",
                            isAssistant
                               ? "rounded-tl-none border border-slate-200/50 bg-white text-slate-700 dark:border-slate-800/50 dark:bg-slate-800 dark:text-slate-300"
-                              : "rounded-br-none bg-gradient-to-r from-blue-600 to-indigo-500 font-medium text-white shadow-blue-500/20",
+                              : "rounded-br-none bg-linear-to-r from-blue-600 to-indigo-500 font-medium text-white shadow-blue-500/20",
                         ].join(" ")}>
                         {message.content}
                      </div>
@@ -86,10 +86,10 @@ export function AssistantChatPanel({
             
             {submitting && (
                <div className="flex items-start gap-4 animate-fade-in-up">
-                  <div className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
+                  <div className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-md shadow-blue-500/20">
                      <SparklesIcon className="h-5 w-5 animate-pulse" />
                   </div>
-                  <div className="rounded-[1.5rem] rounded-tl-none border border-slate-200/50 bg-white px-5 py-4 shadow-sm dark:border-slate-800/50 dark:bg-slate-800">
+                  <div className="rounded-3xl rounded-tl-none border border-slate-200/50 bg-white px-5 py-4 shadow-sm dark:border-slate-800/50 dark:bg-slate-800">
                      <div className="flex gap-1.5">
                         <span className="h-1.5 w-1.5 rounded-full bg-slate-300 animate-bounce [animation-delay:-0.3s]" />
                         <span className="h-1.5 w-1.5 rounded-full bg-slate-300 animate-bounce [animation-delay:-0.15s]" />
@@ -103,7 +103,7 @@ export function AssistantChatPanel({
          </div>
 
          <footer className="border-t border-slate-100/80 bg-white/50 px-6 py-6 dark:border-slate-800/80 dark:bg-slate-900/50">
-            <div className="group relative flex items-center gap-3 overflow-hidden rounded-[1.5rem] border border-slate-200/60 bg-white/50 p-1.5 transition-all focus-within:border-blue-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 dark:border-slate-700/60 dark:bg-slate-950/50 dark:focus-within:border-blue-500">
+            <div className="group relative flex items-center gap-3 overflow-hidden rounded-3xl border border-slate-200/60 bg-white/50 p-1.5 transition-all focus-within:border-blue-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/10 dark:border-slate-700/60 dark:bg-slate-950/50 dark:focus-within:border-blue-500">
                <input
                   value={inputValue}
                   onChange={(event) => onInputChange(event.target.value)}
@@ -123,7 +123,7 @@ export function AssistantChatPanel({
                   type="button"
                   onClick={onSubmitMessage}
                   disabled={submitting || !inputValue.trim()}
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-40 disabled:grayscale"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-40 disabled:grayscale"
                   aria-label="Send message">
                   <SendIcon className="h-5 w-5" />
                </button>
