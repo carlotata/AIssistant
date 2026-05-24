@@ -6,7 +6,7 @@ import { apiFetch, ApiError, ensureCsrfToken } from "@/lib/api";
 import { createInitialMessages, DASHBOARD_TABS, QUICK_ACTIONS } from "./hard-data/dashboard-data";
 import { AssistantChatPanel } from "./assistant-chat-panel";
 import { DashboardHeader } from "./dashboard-header";
-import { ChatIcon, ListChecksIcon, TrendUpIcon } from "./dashboard-icons";
+import { ChatIcon, ListChecksIcon, SparklesIcon, TrendUpIcon, CheckCircleIcon } from "./dashboard-icons";
 import type { ChatMessage, DashboardSummary, QuickAction, Quiz, StudyProgress, StudyQuestion } from "./hard-data/dashboard-types";
 
 function createMessageId() {
@@ -28,18 +28,18 @@ function averageScoreLabel(score: number) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
    return (
-      <div className="rounded-[2rem] border border-dashed border-slate-300 bg-slate-50/50 px-6 py-12 text-center transition-all duration-300 hover:bg-slate-50">
-         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
-            <SparklesIcon className="h-8 w-8 opacity-20" />
+      <div className="rounded-[2.5rem] border border-dashed border-slate-300 bg-slate-50/30 px-6 py-12 text-center transition-all duration-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/30 dark:hover:bg-slate-900/50">
+         <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-white text-slate-400 shadow-sm dark:bg-slate-800 dark:text-slate-500">
+            <SparklesIcon className="h-10 w-10 opacity-20" />
          </div>
-         <p className="text-sm font-semibold text-slate-500">{children}</p>
+         <p className="text-sm font-bold tracking-tight text-slate-500 dark:text-slate-400">{children}</p>
       </div>
    );
 }
 
 function SectionPanel({ children, className = "" }: { children: React.ReactNode, className?: string }) {
    return (
-      <section className={`rounded-[2rem] border border-slate-200/60 bg-white p-8 shadow-premium transition-all duration-300 hover:shadow-xl animate-fade-in-up ${className}`}>
+      <section className={`rounded-[2.5rem] border border-slate-200/60 bg-white/70 p-8 shadow-premium backdrop-blur-xl transition-all duration-300 hover:shadow-xl animate-fade-in-up dark:border-slate-800/60 dark:bg-slate-900/50 ${className}`}>
          {children}
       </section>
    );
@@ -47,13 +47,13 @@ function SectionPanel({ children, className = "" }: { children: React.ReactNode,
 
 function Metric({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
    return (
-      <div className="group flex min-h-24 min-w-0 flex-col items-start justify-between gap-4 rounded-[1.5rem] border border-slate-200/50 bg-white p-6 shadow-soft transition-all duration-300 hover:scale-[1.02] hover:border-blue-200 hover:shadow-premium sm:flex-row sm:items-center">
-         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-tr from-blue-50 to-indigo-50 text-blue-600 transition-colors group-hover:from-blue-600 group-hover:to-indigo-500 group-hover:text-white shadow-inner">
+      <div className="group flex min-h-24 min-w-0 flex-col items-start justify-between gap-4 rounded-[2rem] border border-slate-200/50 bg-white/80 p-6 shadow-soft backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:border-blue-200 hover:shadow-premium sm:flex-row sm:items-center dark:border-slate-800/50 dark:bg-slate-900/80 dark:hover:border-blue-800">
+         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-tr from-blue-50 to-indigo-50 text-blue-600 transition-colors group-hover:from-blue-600 group-hover:to-indigo-500 group-hover:text-white shadow-inner dark:from-blue-900/20 dark:to-indigo-900/20 dark:text-blue-400">
             {icon ?? <TrendUpIcon className="h-7 w-7" />}
          </div>
          <div className="min-w-0 sm:text-right">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{label}</p>
-            <p className="mt-1 text-3xl font-black tabular-nums text-slate-900">{value}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">{label}</p>
+            <p className="mt-1 text-3xl font-black tabular-nums text-slate-900 dark:text-white">{value}</p>
          </div>
       </div>
    );
@@ -73,25 +73,25 @@ function ProgressPanel({ progress }: { progress: StudyProgress }) {
    return (
       <SectionPanel>
          <div className="mb-8 flex items-center gap-4">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                <TrendUpIcon className="h-5 w-5" />
             </div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900">Study Progress</h2>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Study Progress</h2>
          </div>
 
          <ProgressCards progress={progress} />
 
-         <div className="mt-8 rounded-2xl bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-100/50 p-5">
+         <div className="mt-8 rounded-2xl bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-100/50 p-5 dark:from-blue-900/10 dark:to-indigo-900/10 dark:border-blue-900/30">
             <div className="flex items-center gap-4">
-               <div className="h-2 flex-1 rounded-full bg-slate-200 overflow-hidden">
+               <div className="h-2 flex-1 rounded-full bg-slate-200 overflow-hidden dark:bg-slate-700">
                   <div 
                      className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 transition-all duration-1000" 
                      style={{ width: `${Math.max(15, progress.averageScore)}%` }}
                   />
                </div>
-               <span className="text-sm font-bold text-blue-700">{averageScoreLabel(progress.averageScore)}</span>
+               <span className="text-sm font-bold text-blue-700 dark:text-blue-400">{averageScoreLabel(progress.averageScore)}</span>
             </div>
-            <p className="mt-4 text-sm font-medium text-slate-600">
+            <p className="mt-4 text-sm font-medium text-slate-600 dark:text-slate-400">
                {progress.totalQuizzes > 0
                   ? `Excellent work! You've tackled ${progress.totalQuizzes} quizzes. Keep pushing that average score higher.`
                   : "Start your journey by generating your first quiz below."}
@@ -105,10 +105,10 @@ function QuestionsPanel({ questions, title }: { questions: StudyQuestion[]; titl
    return (
       <SectionPanel>
          <div className="mb-8 flex items-center gap-4">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                <ChatIcon className="h-5 w-5" />
             </div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900">{title}</h2>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">{title}</h2>
          </div>
 
          {questions.length === 0 ? (
@@ -116,12 +116,16 @@ function QuestionsPanel({ questions, title }: { questions: StudyQuestion[]; titl
          ) : (
             <div className="grid gap-4">
                {questions.map((question) => (
-                  <article key={question.id} className="group relative rounded-2xl border border-slate-100 bg-slate-50/50 p-5 transition-all hover:bg-white hover:shadow-premium">
-                     <p className="text-sm font-bold text-slate-900 line-clamp-1">{question.questionText}</p>
-                     <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-600">{question.chatbotResponse}</p>
-                     <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{formatDate(question.createdAt)}</span>
-                        <div className="h-1.5 w-1.5 rounded-full bg-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <article key={question.id} className="group relative overflow-hidden rounded-[2rem] border border-slate-200/50 bg-white/50 p-6 transition-all hover:bg-white hover:shadow-premium dark:border-slate-800/50 dark:bg-slate-950/50 dark:hover:bg-slate-900">
+                     <div className="relative z-10">
+                        <p className="text-sm font-black text-slate-900 line-clamp-1 dark:text-white">{question.questionText}</p>
+                        <p className="mt-3 line-clamp-2 text-sm leading-relaxed font-medium text-slate-600 dark:text-slate-400">{question.chatbotResponse}</p>
+                        <div className="mt-5 flex items-center justify-between border-t border-slate-100/80 pt-4 dark:border-slate-800/80">
+                           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">{formatDate(question.createdAt)}</span>
+                           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0 dark:bg-blue-900/30 dark:text-blue-400">
+                              <SparklesIcon className="h-4 w-4" />
+                           </div>
+                        </div>
                      </div>
                   </article>
                ))}
@@ -143,10 +147,10 @@ function QuizzesPanel({
    return (
       <SectionPanel>
          <div className="mb-8 flex items-center gap-4">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                <ListChecksIcon className="h-5 w-5" />
             </div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900">{title}</h2>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">{title}</h2>
          </div>
 
          {quizzes.length === 0 ? (
@@ -158,18 +162,18 @@ function QuizzesPanel({
                      key={quiz.id}
                      type="button"
                      onClick={() => onSelectQuiz(quiz.id)}
-                     className="group block w-full rounded-2xl border border-slate-100 bg-slate-50/50 p-5 text-left transition-all hover:border-blue-200 hover:bg-white hover:shadow-premium">
+                     className="group block w-full rounded-2xl border border-slate-100 bg-slate-50/50 p-5 text-left transition-all hover:border-blue-200 hover:bg-white hover:shadow-premium dark:border-slate-800 dark:bg-slate-950/50 dark:hover:bg-slate-800">
                      <div className="flex items-center justify-between gap-4">
                         <div className="min-w-0">
-                           <p className="text-sm font-bold text-slate-900 truncate">{quiz.quizTopic}</p>
-                           <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">{formatDate(quiz.createdAt)}</p>
+                           <p className="text-sm font-bold text-slate-900 truncate dark:text-white">{quiz.quizTopic}</p>
+                           <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{formatDate(quiz.createdAt)}</p>
                         </div>
                         <span
                            className={[
                               "shrink-0 rounded-xl px-4 py-1.5 text-xs font-black uppercase tracking-wider shadow-sm",
                               quiz.state === "COMPLETED"
-                                 ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100"
-                                 : "bg-blue-50 text-blue-600 ring-1 ring-blue-100",
+                                 ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-900/30"
+                                 : "bg-blue-50 text-blue-600 ring-1 ring-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-900/30",
                            ].join(" ")}>
                            {quiz.state === "COMPLETED" ? `Score: ${averageScoreLabel(quiz.score ?? 0)}` : "Start Quiz"}
                         </span>
@@ -187,11 +191,11 @@ function DashboardSkeleton() {
       <div className="grid gap-6">
          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
             {[0, 1, 2].map((i) => (
-               <div key={i} className="h-32 animate-pulse rounded-[1.5rem] bg-white shadow-soft" />
+               <div key={i} className="h-32 animate-pulse rounded-[1.5rem] bg-white shadow-soft dark:bg-slate-900" />
             ))}
          </div>
-         <div className="h-64 animate-pulse rounded-[2rem] bg-white shadow-premium" />
-         <div className="h-96 animate-pulse rounded-[2rem] bg-white shadow-premium" />
+         <div className="h-64 animate-pulse rounded-[2rem] bg-white shadow-premium dark:bg-slate-900" />
+         <div className="h-96 animate-pulse rounded-[2rem] bg-white shadow-premium dark:bg-slate-900" />
       </div>
    );
 }
@@ -313,6 +317,8 @@ export function StudyDashboard() {
       setQuizError(null);
       setQuizLoading(true);
       try {
+         // Ensure CSRF token is set before making the request
+         await ensureCsrfToken();
          const data = await apiFetch<{ quiz: Quiz }>("/quizzes", {
             method: "POST",
             body: JSON.stringify({ quizTopic: cleanedTopic, questionCount: quizQuestionCount }),
@@ -348,6 +354,8 @@ export function StudyDashboard() {
       setQuizError(null);
       setQuizLoading(true);
       try {
+         // Ensure CSRF token is set before making the request
+         await ensureCsrfToken();
          const data = await apiFetch<{ quiz: Quiz; studyProgress: StudyProgress }>(`/quizzes/${activeQuiz.id}/submit`, {
             method: "POST",
             body: JSON.stringify({ answers }),
@@ -366,31 +374,33 @@ export function StudyDashboard() {
    const quizPanel = (
       <SectionPanel>
          <div className="mb-8 flex items-center gap-4">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                <ListChecksIcon className="h-5 w-5" />
             </div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900">Create Quiz</h2>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Create Quiz</h2>
          </div>
 
-         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_140px_140px]">
-            <input
-               value={quizTopic}
-               onChange={(event) => setQuizTopic(event.target.value)}
-               placeholder="Topic (e.g. Quantum Physics, History...)"
-               disabled={quizLoading}
-               className="h-14 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-5 text-sm font-bold text-slate-700 outline-none transition-all focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
-            />
+         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_160px_140px]">
+            <div className="relative group">
+               <input
+                  value={quizTopic}
+                  onChange={(event) => setQuizTopic(event.target.value)}
+                  placeholder="Topic (e.g. Quantum Physics, History...)"
+                  disabled={quizLoading}
+                  className="h-14 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-5 text-sm font-bold text-slate-700 outline-none transition-all focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700/60 dark:bg-slate-950/50 dark:text-slate-300 dark:focus:border-blue-500 dark:focus:bg-slate-900"
+               />
+            </div>
             <div className="relative">
                <select
                   id="quiz-question-count"
                   value={quizQuestionCount}
                   onChange={(event) => setQuizQuestionCount(Number(event.target.value))}
                   disabled={quizLoading}
-                  className="h-14 w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-5 text-sm font-black text-slate-700 outline-none transition-all focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="h-14 w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50/50 px-5 pr-10 text-sm font-black text-slate-700 outline-none transition-all focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-500/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700/60 dark:bg-slate-950/50 dark:text-slate-300 dark:focus:border-blue-500 dark:focus:bg-slate-900"
                   aria-label="Quiz question count">
                   {[3, 5, 7, 10].map((count) => (
-                     <option key={count} value={count}>
-                        {count} Questions
+                     <option key={count} value={count} className="dark:bg-slate-900">
+                        {count} Items
                      </option>
                   ))}
                </select>
@@ -410,7 +420,7 @@ export function StudyDashboard() {
          </div>
 
          {quizError && (
-            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-bold text-red-600">
+            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-red-100/80 bg-red-50/50 p-4 text-sm font-bold text-red-600 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-400">
                <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                </svg>
@@ -420,13 +430,13 @@ export function StudyDashboard() {
 
          {activeQuiz?.questions && (
             <div className="mt-10 space-y-6 animate-fade-in-up">
-               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-6">
+               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-6 dark:border-slate-800">
                   <div>
-                     <p className="text-[10px] font-black uppercase tracking-widest text-blue-600">Active Quiz Session</p>
-                     <h3 className="mt-1 text-xl font-black text-slate-900">{activeQuiz.quizTopic}</h3>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Active Quiz Session</p>
+                     <h3 className="mt-1 text-xl font-black text-slate-900 dark:text-white">{activeQuiz.quizTopic}</h3>
                   </div>
                   <span className={`rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest ${
-                     activeQuiz.state === "COMPLETED" ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100" : "bg-blue-50 text-blue-600 ring-1 ring-blue-100"
+                     activeQuiz.state === "COMPLETED" ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-900/30" : "bg-blue-50 text-blue-600 ring-1 ring-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-900/30"
                   }`}>
                      {activeQuiz.state === "COMPLETED" ? `Accuracy: ${averageScoreLabel(activeQuiz.score ?? 0)}` : "In Progress"}
                   </span>
@@ -435,8 +445,8 @@ export function StudyDashboard() {
                <div className="space-y-8">
                   {activeQuiz.questions.map((question) => (
                      <fieldset key={question.id} className="space-y-4">
-                        <legend className="text-base font-bold text-slate-900">
-                           <span className="mr-2 text-blue-600 opacity-50">{question.position}.</span>
+                        <legend className="text-base font-bold text-slate-900 dark:text-white">
+                           <span className="mr-2 text-blue-600 opacity-50 dark:text-blue-400">{question.position}.</span>
                            {question.questionText}
                         </legend>
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -450,9 +460,9 @@ export function StudyDashboard() {
                                     key={option.id}
                                     className={[
                                        "relative flex cursor-pointer items-center gap-4 rounded-2xl border p-4 text-sm font-bold transition-all duration-200",
-                                       isSelected ? "border-blue-400 bg-blue-50/30 text-slate-900 shadow-sm" : "border-slate-100 bg-white text-slate-600 hover:border-slate-200 hover:bg-slate-50",
-                                       isCompleted && isCorrect ? "border-emerald-500 bg-emerald-50/50 text-emerald-900 ring-1 ring-emerald-500/20" : "",
-                                       isCompleted && isSelected && !isCorrect ? "border-red-500 bg-red-50/50 text-red-900 ring-1 ring-red-500/20" : "",
+                                       isSelected ? "border-blue-400 bg-blue-50/30 text-slate-900 shadow-sm dark:border-blue-500 dark:bg-blue-900/20 dark:text-white" : "border-slate-100 bg-white text-slate-600 hover:border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-900",
+                                       isCompleted && isCorrect ? "border-emerald-500 bg-emerald-50/50 text-emerald-900 ring-1 ring-emerald-500/20 dark:bg-emerald-900/20 dark:text-emerald-400" : "",
+                                       isCompleted && isSelected && !isCorrect ? "border-red-500 bg-red-50/50 text-red-900 ring-1 ring-red-500/20 dark:bg-red-900/20 dark:text-red-400" : "",
                                     ].join(" ")}>
                                     <input
                                        type="radio"
@@ -644,7 +654,7 @@ export function StudyDashboard() {
    }
 
    return (
-      <div className="min-h-screen bg-[#f8fafc] text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+      <div className="min-h-screen bg-background text-foreground transition-colors duration-300 selection:bg-blue-100 selection:text-blue-900">
          {/* Background Decor */}
          <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
             <div className="absolute -top-[10%] -left-[10%] h-[40%] w-[40%] rounded-full bg-blue-400/5 blur-[120px]" />
@@ -664,7 +674,7 @@ export function StudyDashboard() {
                {loadingSummary ? (
                   <DashboardSkeleton />
                ) : summaryError ? (
-                  <SectionPanel className="border-red-100 bg-red-50/30 text-red-600">
+                  <SectionPanel className="border-red-100 bg-red-50/30 text-red-600 dark:border-red-900/30 dark:bg-red-900/10 dark:text-red-400">
                      <p className="text-sm font-bold">{summaryError}</p>
                   </SectionPanel>
                ) : (

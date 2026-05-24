@@ -22,6 +22,15 @@
   }
 }
 
+/* Dark mode specific styles */
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --brand-primary: #3b82f6;
+  --brand-secondary: #818cf8;
+  --brand-gradient: linear-gradient(135deg, #3b82f6 0%, #818cf8 100%);
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -49,8 +58,16 @@ body {
   border-radius: 10px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 .glass-card {
@@ -58,6 +75,11 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.dark .glass-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .brand-gradient {
