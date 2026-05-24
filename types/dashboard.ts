@@ -1,7 +1,7 @@
 export type DashboardTab = {
   id: string;
   label: string;
-  icon: "dashboard" | "chat" | "quiz" | "progress";
+  icon: "dashboard" | "chat" | "quiz" | "progress" | "users";
 };
 
 export type QuickAction = {

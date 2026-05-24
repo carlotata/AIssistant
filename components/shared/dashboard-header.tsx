@@ -7,9 +7,10 @@ import {
    ListChecksIcon,
    SparklesIcon,
    TrendUpIcon,
-} from "./dashboard-icons";
+   UsersIcon,
+} from "../icons/dashboard-icons";
 import { ThemeToggle } from "./theme-toggle";
-import type { DashboardTab } from "./hard-data/dashboard-types";
+import type { DashboardTab } from "@/types/dashboard";
 
 type DashboardHeaderProps = {
    tabs: DashboardTab[];
@@ -32,6 +33,10 @@ function TabIcon({ icon }: Pick<DashboardTab, "icon">) {
       return <ListChecksIcon className={className} />;
    }
 
+   if (icon === "users") {
+      return <UsersIcon className={className} />;
+   }
+
    return <TrendUpIcon className={className} />;
 }
 
@@ -40,7 +45,7 @@ export function DashboardHeader({
    activeTabId,
    onTabChange,
 }: DashboardHeaderProps) {
-   const { student, logout } = useAuth();
+   const { user, logout } = useAuth();
    const router = useRouter();
    const [menuOpen, setMenuOpen] = useState(false);
    const menuRef = useRef<HTMLDivElement>(null);
@@ -57,8 +62,8 @@ export function DashboardHeader({
       };
    }, []);
 
-   const initials = student
-      ? student.name
+   const initials = user
+      ? user.name
            .split(" ")
            .map((n) => n[0])
            .join("")
@@ -120,9 +125,16 @@ export function DashboardHeader({
                      <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-sm font-black text-white shadow-lg dark:from-blue-600 dark:to-indigo-500">
                         {initials}
                      </div>
-                     <span className="hidden text-sm font-bold text-slate-700 lg:block dark:text-slate-300">
-                        {student?.name.split(" ")[0]}
-                     </span>
+                     <div className="hidden flex-col items-start lg:flex">
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                           {user?.name.split(" ")[0]}
+                        </span>
+                        {user?.role === "ADMIN" && (
+                           <span className="text-[8px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                              Admin Console
+                           </span>
+                        )}
+                     </div>
                      <svg className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${menuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
                      </svg>
@@ -138,10 +150,10 @@ export function DashboardHeader({
                            </div>
                            <div className="min-w-0">
                               <p className="text-base font-bold text-slate-900 truncate dark:text-white">
-                                 {student?.name}
+                                 {user?.name}
                               </p>
                               <p className="text-xs font-medium text-slate-500 truncate dark:text-slate-400">
-                                 {student?.email}
+                                 {user?.email}
                               </p>
                            </div>
                         </div>

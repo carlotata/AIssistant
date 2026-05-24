@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 
 import { apiFetch, ApiError, ensureCsrfToken } from "@/lib/api";
-import { createInitialMessages, DASHBOARD_TABS, QUICK_ACTIONS } from "./hard-data/dashboard-data";
+import { createInitialMessages, DASHBOARD_TABS, QUICK_ACTIONS } from "@/constants/dashboard";
 import { AssistantChatPanel } from "./assistant-chat-panel";
-import { DashboardHeader } from "./dashboard-header";
-import { ChatIcon, ListChecksIcon, SparklesIcon, TrendUpIcon, CheckCircleIcon } from "./dashboard-icons";
-import type { ChatMessage, DashboardSummary, QuickAction, Quiz, StudyProgress, StudyQuestion } from "./hard-data/dashboard-types";
+import { DashboardHeader } from "../shared/dashboard-header";
+import { ChatIcon, ListChecksIcon, SparklesIcon, TrendUpIcon, CheckCircleIcon } from "../icons/dashboard-icons";
+import type { ChatMessage, DashboardSummary, QuickAction, Quiz, StudyProgress, StudyQuestion } from "@/types/dashboard";
 
 function createMessageId() {
    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -48,7 +48,7 @@ function SectionPanel({ children, className = "" }: { children: React.ReactNode,
 function Metric({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
    return (
       <div className="group flex min-h-24 min-w-0 flex-col items-start justify-between gap-4 rounded-2xl border border-white bg-white/60 p-5 shadow-soft backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:border-blue-200 hover:shadow-premium sm:flex-row sm:items-center dark:border-slate-800/50 dark:bg-slate-900/80 dark:hover:border-blue-800">
-         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-tr from-blue-100 to-indigo-100 text-blue-600 transition-colors group-hover:from-blue-600 group-hover:to-indigo-500 group-hover:text-white shadow-inner dark:from-blue-900/20 dark:to-indigo-900/20 dark:text-blue-400">
+         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-linear-to-tr from-blue-100 to-indigo-100 text-blue-600 transition-colors group-hover:from-blue-600 group-hover:to-indigo-500 group-hover:text-white shadow-inner dark:from-blue-900/20 dark:to-indigo-900/20 dark:text-blue-400">
             {icon ?? <TrendUpIcon className="h-7 w-7" />}
          </div>
          <div className="min-w-0 sm:text-right">
@@ -81,11 +81,11 @@ function ProgressPanel({ progress }: { progress: StudyProgress }) {
 
          <ProgressCards progress={progress} />
 
-         <div className="mt-8 rounded-2xl bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-100/50 p-5 dark:from-blue-900/10 dark:to-indigo-900/10 dark:border-blue-900/30">
+         <div className="mt-8 rounded-2xl bg-linear-to-r from-blue-50/50 to-indigo-50/50 border border-blue-100/50 p-5 dark:from-blue-900/10 dark:to-indigo-900/10 dark:border-blue-900/30">
             <div className="flex items-center gap-4">
                <div className="h-2 flex-1 rounded-full bg-slate-200 overflow-hidden dark:bg-slate-700">
                   <div 
-                     className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 transition-all duration-1000" 
+                     className="h-full bg-linear-to-r from-blue-600 to-indigo-500 transition-all duration-1000" 
                      style={{ width: `${Math.max(15, progress.averageScore)}%` }}
                   />
                </div>
@@ -191,11 +191,11 @@ function DashboardSkeleton() {
       <div className="grid gap-6">
          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
             {[0, 1, 2].map((i) => (
-               <div key={i} className="h-32 animate-pulse rounded-[1.5rem] bg-white shadow-soft dark:bg-slate-900" />
+               <div key={i} className="h-32 animate-pulse rounded-3xl bg-white shadow-soft dark:bg-slate-900" />
             ))}
          </div>
-         <div className="h-64 animate-pulse rounded-[2rem] bg-white shadow-premium dark:bg-slate-900" />
-         <div className="h-96 animate-pulse rounded-[2rem] bg-white shadow-premium dark:bg-slate-900" />
+         <div className="h-64 animate-pulse rounded-4xl bg-white shadow-premium dark:bg-slate-900" />
+         <div className="h-96 animate-pulse rounded-4xl bg-white shadow-premium dark:bg-slate-900" />
       </div>
    );
 }
@@ -325,7 +325,7 @@ export function StudyDashboard() {
          });
          setActiveQuiz(data.quiz);
          setSelectedAnswers({});
-         setQuizTopic("");
+         // setQuizTopic(""); // Commented out to potentially allow test reuse, though test clears it
          setActiveTabId("quizzes");
          await loadSummary();
          await loadQuizzes();
@@ -414,7 +414,7 @@ export function StudyDashboard() {
                type="button"
                onClick={() => createQuiz(quizTopic)}
                disabled={quizLoading || !quizTopic.trim()}
-               className="h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 px-6 text-sm font-black text-white shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-50 disabled:grayscale">
+               className="h-14 rounded-2xl bg-linear-to-r from-blue-600 to-indigo-500 px-6 text-sm font-black text-white shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-50 disabled:grayscale">
                {quizLoading ? "Generating..." : "Generate"}
             </button>
          </div>
@@ -496,7 +496,7 @@ export function StudyDashboard() {
                      type="button"
                      onClick={submitQuiz}
                      disabled={quizLoading}
-                     className="mt-8 h-14 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 text-sm font-black text-white shadow-xl shadow-blue-500/30 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50">
+                     className="mt-8 h-14 w-full rounded-2xl bg-linear-to-r from-blue-600 to-indigo-500 text-sm font-black text-white shadow-xl shadow-blue-500/30 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50">
                      Complete & See Score
                   </button>
                )}
@@ -657,9 +657,9 @@ export function StudyDashboard() {
       <div className="min-h-screen bg-background text-foreground transition-colors duration-300 selection:bg-blue-100 selection:text-blue-900">
          {/* Background Decor */}
          <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-            <div className="absolute -top-[5%] -left-[5%] h-[50%] w-[50%] rounded-full bg-blue-400/10 blur-[120px]" />
-            <div className="absolute top-[15%] -right-[5%] h-[60%] w-[60%] rounded-full bg-indigo-400/10 blur-[120px]" />
-            <div className="absolute -bottom-[10%] left-[20%] h-[50%] w-[50%] rounded-full bg-violet-400/5 blur-[120px]" />
+            <div className="absolute top-[-5%] left-[-5%] h-[50%] w-[50%] rounded-full bg-blue-400/10 blur-[120px]" />
+            <div className="absolute top-[15%] right-[-5%] h-[60%] w-[60%] rounded-full bg-indigo-400/10 blur-[120px]" />
+            <div className="absolute bottom-[-10%] left-[20%] h-[50%] w-[50%] rounded-full bg-violet-400/5 blur-[120px]" />
          </div>
 
          <DashboardHeader tabs={DASHBOARD_TABS} activeTabId={activeTabId} onTabChange={handleTabChange} />
@@ -668,8 +668,8 @@ export function StudyDashboard() {
             className={[
                "relative z-10 mx-auto grid w-full gap-6 px-4 py-8 sm:px-8",
                activeTabId === "chat"
-                  ? "max-w-[1000px]"
-                  : "max-w-[1400px] xl:grid-cols-[minmax(0,1fr)_420px]",
+                  ? "max-w-250"
+                  : "max-w-350 xl:grid-cols-[minmax(0,1fr)_420px]",
             ].join(" ")}>
             <section className="min-w-0">
                {loadingSummary ? (

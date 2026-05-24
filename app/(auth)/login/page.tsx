@@ -33,7 +33,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(trimmedEmail, password);
-      router.push("/dashboard");
+      // Note: We need to get the user state after login, but since login is async and updates context, 
+      // we might need to rely on the context update or a returned value.
+      // However, usually we can just check the user role if the login function returns it or if we wait for context.
+      // For simplicity, we'll let the dashboard/admin pages handle the role-based redirect via useEffect,
+      // but we can also do a quick check here if we fetch the user immediately.
+      router.push("/dashboard"); 
     } catch (err) {
       if (err instanceof Error) {
         setValidationError(err.message);

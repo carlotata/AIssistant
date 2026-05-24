@@ -1,4 +1,4 @@
-import type { ChatMessage, DashboardTab, QuickAction } from "./dashboard-types";
+import type { ChatMessage, DashboardTab, QuickAction } from "@/types/dashboard";
 
 export const DASHBOARD_TABS: DashboardTab[] = [
   { id: "dashboard", label: "Dashboard", icon: "dashboard" },

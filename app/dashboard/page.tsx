@@ -3,17 +3,19 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { StudyDashboard } from "./components/study-dashboard";
+import { StudyDashboard } from "@/components/dashboard/study-dashboard";
 
 export default function DashboardPage() {
-  const { student, loading } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !student) {
+    if (!loading && !user) {
       router.push("/login");
+    } else if (!loading && user?.role === "ADMIN") {
+      router.push("/admin");
     }
-  }, [student, loading, router]);
+  }, [user, loading, router]);
 
   if (loading) {
     return (
@@ -43,7 +45,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!student) {
+  if (!user) {
     return null;
   }
 

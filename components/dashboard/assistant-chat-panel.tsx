@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
-import { SendIcon, SparklesIcon } from "./dashboard-icons";
-import type { ChatMessage, QuickAction } from "./hard-data/dashboard-types";
+import { SendIcon, SparklesIcon } from "../icons/dashboard-icons";
+import type { ChatMessage, QuickAction } from "@/types/dashboard";
 
 type AssistantChatPanelProps = {
    messages: ChatMessage[];

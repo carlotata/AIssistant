@@ -3,15 +3,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { apiFetch, ApiError, ensureCsrfToken, logoutRequest } from "./api";
 
-export interface Student {
+export interface User {
   id: number;
   name: string;
   email: string;
+  role: "STUDENT" | "ADMIN";
   createdAt: string;
 }
 
 interface AuthContextType {
-  student: Student | null;
+  user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
@@ -23,7 +24,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [student, setStudent] = useState<Student | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,12 +34,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         await ensureCsrfToken();
         
-        // Then retrieve current student session
-        const data = await apiFetch<{ student: Student }>("/auth/me");
-        setStudent(data.student);
+        // Then retrieve current user session
+        const data = await apiFetch<{ student?: User; user?: User }>("/auth/me");
+        setUser(data.user || data.student || null);
       } catch {
-        // Safe to ignore on mount (means student is guest)
-        setStudent(null);
+        // Safe to ignore on mount (means user is guest)
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -51,11 +52,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await ensureCsrfToken();
       
-      const data = await apiFetch<{ student: Student }>("/auth/login", {
+      const data = await apiFetch<{ student?: User; user?: User }>("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      setStudent(data.student);
+      setUser(data.user || data.student || null);
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.code === "INVALID_CREDENTIALS") {
@@ -72,15 +73,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await ensureCsrfToken();
       
-      const data = await apiFetch<{ student: Student }>("/auth/register", {
+      const data = await apiFetch<{ student?: User; user?: User }>("/auth/register", {
         method: "POST",
         body: JSON.stringify({ name, email, password }),
       });
-      setStudent(data.student);
+      setUser(data.user || data.student || null);
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.code === "EMAIL_ALREADY_REGISTERED") {
-          throw new Error("A student with this email already exists");
+          throw new Error("A user with this email already exists");
         }
         throw new Error(err.message);
       }
@@ -94,14 +95,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error("Logout request failed, clearing local state", err);
     } finally {
-      setStudent(null);
+      setUser(null);
     }
   }
 
   return (
     <AuthContext.Provider
       value={{
-        student,
+        user,
         loading,
         login,
         register,
