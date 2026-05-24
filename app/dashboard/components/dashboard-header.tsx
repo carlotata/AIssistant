@@ -72,20 +72,20 @@ export function DashboardHeader({
    }
 
    return (
-      <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-950/70">
-         <div className="mx-auto flex h-20 w-full max-w-[1400px] items-center justify-between px-4 sm:px-8">
-            <div className="flex items-center gap-10">
+      <header className="sticky top-0 z-50 border-b border-white bg-white/60 backdrop-blur-2xl dark:border-slate-800/60 dark:bg-slate-950/70">
+         <div className="mx-auto flex h-16 w-full max-w-[1400px] items-center justify-between px-4 sm:px-8">
+            <div className="flex items-center gap-8">
                <div className="flex items-center gap-3 transition-transform hover:scale-105">
                   <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white shadow-lg shadow-blue-500/20">
                      <SparklesIcon className="h-6 w-6 animate-pulse" />
                   </div>
-                  <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                  <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
                      AI<span className="brand-text-gradient">ssistant</span>
                   </span>
                </div>
 
                <nav
-                  className="hidden items-center gap-1.5 rounded-[1.25rem] bg-slate-100/50 p-1.5 md:flex dark:bg-slate-900/50"
+                  className="hidden items-center gap-1 rounded-xl bg-white/40 p-1 md:flex dark:bg-slate-900/50"
                   aria-label="Dashboard sections">
                   {tabs.map((tab) => {
                      const isActive = tab.id === activeTabId;
@@ -96,9 +96,9 @@ export function DashboardHeader({
                            type="button"
                            onClick={() => onTabChange(tab.id)}
                            className={[
-                              "relative inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all duration-300",
+                              "relative inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300",
                               isActive
-                                 ? "bg-white text-blue-600 shadow-premium ring-1 ring-slate-200/50 dark:bg-slate-800 dark:text-blue-400 dark:ring-slate-700"
+                                 ? "bg-white text-blue-600 shadow-sm ring-1 ring-white/50 dark:bg-slate-800 dark:text-blue-400 dark:ring-slate-700"
                                  : "text-slate-500 hover:bg-white/50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200",
                            ].join(" ")}>
                            <TabIcon icon={tab.icon} />
@@ -115,7 +115,7 @@ export function DashboardHeader({
                   <button
                      type="button"
                      onClick={() => setMenuOpen(!menuOpen)}
-                     className="flex items-center gap-3 rounded-full border border-slate-200 bg-white/80 p-1 pr-4 transition-all hover:border-blue-200 hover:shadow-premium active:scale-95 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-blue-800"
+                     className="flex items-center gap-3 rounded-full border border-white bg-white/60 p-1 pr-4 transition-all hover:border-blue-200 hover:shadow-premium active:scale-95 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-blue-800"
                      aria-label="Open profile">
                      <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-sm font-black text-white shadow-lg dark:from-blue-600 dark:to-indigo-500">
                         {initials}

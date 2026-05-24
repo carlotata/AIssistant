@@ -28,9 +28,9 @@ function averageScoreLabel(score: number) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
    return (
-      <div className="rounded-[2.5rem] border border-dashed border-slate-300 bg-slate-50/30 px-6 py-12 text-center transition-all duration-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/30 dark:hover:bg-slate-900/50">
-         <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-white text-slate-400 shadow-sm dark:bg-slate-800 dark:text-slate-500">
-            <SparklesIcon className="h-10 w-10 opacity-20" />
+      <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50/50 px-6 py-10 text-center transition-all duration-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/30 dark:hover:bg-slate-900/50">
+         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm dark:bg-slate-800 dark:text-slate-500">
+            <SparklesIcon className="h-8 w-8 opacity-20" />
          </div>
          <p className="text-sm font-bold tracking-tight text-slate-500 dark:text-slate-400">{children}</p>
       </div>
@@ -39,7 +39,7 @@ function EmptyState({ children }: { children: React.ReactNode }) {
 
 function SectionPanel({ children, className = "" }: { children: React.ReactNode, className?: string }) {
    return (
-      <section className={`rounded-[2.5rem] border border-slate-200/60 bg-white/70 p-8 shadow-premium backdrop-blur-xl transition-all duration-300 hover:shadow-xl animate-fade-in-up dark:border-slate-800/60 dark:bg-slate-900/50 ${className}`}>
+      <section className={`rounded-3xl border border-white bg-white/70 p-7 shadow-premium backdrop-blur-2xl transition-all duration-300 hover:shadow-xl animate-fade-in-up dark:border-slate-800/60 dark:bg-slate-900/50 ${className}`}>
          {children}
       </section>
    );
@@ -47,8 +47,8 @@ function SectionPanel({ children, className = "" }: { children: React.ReactNode,
 
 function Metric({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
    return (
-      <div className="group flex min-h-24 min-w-0 flex-col items-start justify-between gap-4 rounded-[2rem] border border-slate-200/50 bg-white/80 p-6 shadow-soft backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:border-blue-200 hover:shadow-premium sm:flex-row sm:items-center dark:border-slate-800/50 dark:bg-slate-900/80 dark:hover:border-blue-800">
-         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-tr from-blue-50 to-indigo-50 text-blue-600 transition-colors group-hover:from-blue-600 group-hover:to-indigo-500 group-hover:text-white shadow-inner dark:from-blue-900/20 dark:to-indigo-900/20 dark:text-blue-400">
+      <div className="group flex min-h-24 min-w-0 flex-col items-start justify-between gap-4 rounded-2xl border border-white bg-white/60 p-5 shadow-soft backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:border-blue-200 hover:shadow-premium sm:flex-row sm:items-center dark:border-slate-800/50 dark:bg-slate-900/80 dark:hover:border-blue-800">
+         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-tr from-blue-100 to-indigo-100 text-blue-600 transition-colors group-hover:from-blue-600 group-hover:to-indigo-500 group-hover:text-white shadow-inner dark:from-blue-900/20 dark:to-indigo-900/20 dark:text-blue-400">
             {icon ?? <TrendUpIcon className="h-7 w-7" />}
          </div>
          <div className="min-w-0 sm:text-right">
@@ -104,7 +104,7 @@ function ProgressPanel({ progress }: { progress: StudyProgress }) {
 function QuestionsPanel({ questions, title }: { questions: StudyQuestion[]; title: string }) {
    return (
       <SectionPanel>
-         <div className="mb-8 flex items-center gap-4">
+         <div className="mb-6 flex items-center gap-4">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                <ChatIcon className="h-5 w-5" />
             </div>
@@ -114,13 +114,13 @@ function QuestionsPanel({ questions, title }: { questions: StudyQuestion[]; titl
          {questions.length === 0 ? (
             <EmptyState>Ask a study question to save your first answer.</EmptyState>
          ) : (
-            <div className="grid gap-4">
+            <div className="grid gap-3">
                {questions.map((question) => (
-                  <article key={question.id} className="group relative overflow-hidden rounded-[2rem] border border-slate-200/50 bg-white/50 p-6 transition-all hover:bg-white hover:shadow-premium dark:border-slate-800/50 dark:bg-slate-950/50 dark:hover:bg-slate-900">
+                  <article key={question.id} className="group relative overflow-hidden rounded-2xl border border-white/50 bg-white/40 p-5 transition-all hover:bg-white hover:shadow-premium dark:border-slate-800/50 dark:bg-slate-950/50 dark:hover:bg-slate-900">
                      <div className="relative z-10">
                         <p className="text-sm font-black text-slate-900 line-clamp-1 dark:text-white">{question.questionText}</p>
-                        <p className="mt-3 line-clamp-2 text-sm leading-relaxed font-medium text-slate-600 dark:text-slate-400">{question.chatbotResponse}</p>
-                        <div className="mt-5 flex items-center justify-between border-t border-slate-100/80 pt-4 dark:border-slate-800/80">
+                        <p className="mt-2 line-clamp-2 text-sm leading-relaxed font-medium text-slate-600 dark:text-slate-400">{question.chatbotResponse}</p>
+                        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800/80">
                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">{formatDate(question.createdAt)}</span>
                            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50 text-blue-600 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0 dark:bg-blue-900/30 dark:text-blue-400">
                               <SparklesIcon className="h-4 w-4" />
@@ -146,7 +146,7 @@ function QuizzesPanel({
 }) {
    return (
       <SectionPanel>
-         <div className="mb-8 flex items-center gap-4">
+         <div className="mb-6 flex items-center gap-4">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                <ListChecksIcon className="h-5 w-5" />
             </div>
@@ -156,13 +156,13 @@ function QuizzesPanel({
          {quizzes.length === 0 ? (
             <EmptyState>Generated quizzes will appear here.</EmptyState>
          ) : (
-            <div className="grid gap-4">
+            <div className="grid gap-3">
                {quizzes.map((quiz) => (
                   <button
                      key={quiz.id}
                      type="button"
                      onClick={() => onSelectQuiz(quiz.id)}
-                     className="group block w-full rounded-2xl border border-slate-100 bg-slate-50/50 p-5 text-left transition-all hover:border-blue-200 hover:bg-white hover:shadow-premium dark:border-slate-800 dark:bg-slate-950/50 dark:hover:bg-slate-800">
+                     className="group block w-full rounded-2xl border border-white/50 bg-white/40 p-5 text-left transition-all hover:border-blue-200 hover:bg-white hover:shadow-premium dark:border-slate-800 dark:bg-slate-950/50 dark:hover:bg-slate-800">
                      <div className="flex items-center justify-between gap-4">
                         <div className="min-w-0">
                            <p className="text-sm font-bold text-slate-900 truncate dark:text-white">{quiz.quizTopic}</p>
@@ -512,7 +512,7 @@ export function StudyDashboard() {
 
       if (activeTabId === "chat") {
          return (
-            <div className="space-y-8">
+            <div className="space-y-6">
                <AssistantChatPanel
                   messages={messages}
                   inputValue={inputValue}
@@ -537,7 +537,7 @@ export function StudyDashboard() {
 
       if (activeTabId === "quizzes") {
          return (
-            <div className="space-y-8">
+            <div className="space-y-6">
                {quizPanel}
                {quizzesLoading ? (
                   <DashboardSkeleton />
@@ -569,7 +569,7 @@ export function StudyDashboard() {
       }
 
       return (
-         <div className="space-y-8">
+         <div className="space-y-6">
             <ProgressCards progress={summary.studyProgress} />
             <QuestionsPanel title="Recent Insights" questions={summary.recentStudyQuestions} />
             {quizPanel}
@@ -657,15 +657,16 @@ export function StudyDashboard() {
       <div className="min-h-screen bg-background text-foreground transition-colors duration-300 selection:bg-blue-100 selection:text-blue-900">
          {/* Background Decor */}
          <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-            <div className="absolute -top-[10%] -left-[10%] h-[40%] w-[40%] rounded-full bg-blue-400/5 blur-[120px]" />
-            <div className="absolute top-[20%] -right-[10%] h-[50%] w-[50%] rounded-full bg-indigo-400/5 blur-[120px]" />
+            <div className="absolute -top-[5%] -left-[5%] h-[50%] w-[50%] rounded-full bg-blue-400/10 blur-[120px]" />
+            <div className="absolute top-[15%] -right-[5%] h-[60%] w-[60%] rounded-full bg-indigo-400/10 blur-[120px]" />
+            <div className="absolute -bottom-[10%] left-[20%] h-[50%] w-[50%] rounded-full bg-violet-400/5 blur-[120px]" />
          </div>
 
          <DashboardHeader tabs={DASHBOARD_TABS} activeTabId={activeTabId} onTabChange={handleTabChange} />
 
          <main
             className={[
-               "relative z-10 mx-auto grid w-full gap-8 px-4 py-8 sm:px-8",
+               "relative z-10 mx-auto grid w-full gap-6 px-4 py-8 sm:px-8",
                activeTabId === "chat"
                   ? "max-w-[1000px]"
                   : "max-w-[1400px] xl:grid-cols-[minmax(0,1fr)_420px]",
