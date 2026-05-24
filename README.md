@@ -1,5 +1,8 @@
 # AIssistant
 
+**Frontend Repository**: [AIssistant-frontend](https://github.com/carlotata/AIssistant)  
+**Backend Repository**: [AIssistant-backend](https://github.com/sminemb/AIssistant-backend)
+
 AIssistant is an intelligent academic study assistant designed to help students focus, learn efficiently, and test their knowledge.
 
 ## Tech Stack
