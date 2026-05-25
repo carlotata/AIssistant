@@ -62,8 +62,25 @@ export type StudyProgress = {
   updatedAt: string;
 };
 
+export type Conversation = {
+  id: number;
+  userId: number;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Message = {
+  id: number;
+  conversationId: number;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+};
+
 export type DashboardSummary = {
-  recentStudyQuestions: StudyQuestion[];
+  recentConversations: Conversation[];
   recentQuizzes: Quiz[];
   studyProgress: StudyProgress;
+  recommendations: { topic: string, questions: number }[];
 };

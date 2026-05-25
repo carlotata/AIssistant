@@ -24,8 +24,8 @@
   --brand-gradient: linear-gradient(135deg, #3b82f6 0%, #818cf8 100%);
 }
 
-html {
-  scroll-behavior: smooth;
+button, [role="button"], a {
+  cursor: pointer;
 }
 
 body {

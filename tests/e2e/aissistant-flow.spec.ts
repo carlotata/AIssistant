@@ -249,19 +249,21 @@ test("auth, dashboard, study question, quiz, progress, and logout flow", async (
   await page.getByLabel("Email Address").fill("ada@example.com");
   await page.getByLabel("Password").fill("password123");
   await page.getByRole("button", { name: "Sign In" }).click();
+  await page.waitForURL("**/dashboard**");
+  await page.screenshot({ path: 'debug.png' });
 
-  await expect(page.getByRole("button", { name: "Open profile" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Recent Insights" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "New Chat +" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Welcome Back!" })).toBeVisible();
+  await expect(page.getByText("Topics Mastered")).toBeVisible();
+  await expect(page.getByText("Quizzes Taken")).toBeVisible();
   await expect(page.getByText("Avg Accuracy", { exact: false })).toBeVisible();
 
-  await page.getByRole("button", { name: "Chat" }).click();
   await page.getByLabel("Message your AI assistant").fill("Explain photosynthesis");
   await page.getByRole("button", { name: "Send message" }).click();
   await expect(page.getByText("Photosynthesis turns light").first()).toBeVisible();
   await expect(page.getByText("Explain photosynthesis").first()).toBeVisible();
   expect(state.studyQuestionAttempts).toBe(2);
 
-  await page.getByRole("button", { name: "Quizzes" }).click();
   await page.getByPlaceholder("Topic (e.g. Quantum Physics, History...)").fill("Algebra basics");
   await page.getByLabel("Quiz question count").selectOption("3");
   await page.getByRole("button", { name: "Generate" }).click();
@@ -274,14 +276,12 @@ test("auth, dashboard, study question, quiz, progress, and logout flow", async (
   await page.getByRole("button", { name: "Complete & See Score" }).click();
   await expect(page.getByText("Accuracy: 100%")).toBeVisible();
 
-  await page.getByRole("button", { name: "Progress" }).click();
   await expect(page.getByRole("heading", { name: "Study Progress" })).toBeVisible();
   await expect(page.getByText("Topics Mastered")).toBeVisible();
   await expect(page.getByText("Quizzes Taken")).toBeVisible();
   await expect(page.getByText("Avg Accuracy", { exact: false })).toBeVisible();
   await expect(page.locator("p").filter({ hasText: /^100%$/ })).toBeVisible();
 
-  await page.getByRole("button", { name: "Open profile" }).click();
   await page.getByRole("button", { name: "Log Out" }).click();
   await expect(page).toHaveURL(/\/login/);
 });

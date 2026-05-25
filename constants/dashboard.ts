@@ -7,21 +7,23 @@ export const DASHBOARD_TABS: DashboardTab[] = [
   { id: "progress", label: "Progress", icon: "progress" },
 ];
 
+const TOPICS = ["Quantum Physics", "World History", "Calculus", "JavaScript Closures", "Photosynthesis", "Macroeconomics"];
+
 export const QUICK_ACTIONS: QuickAction[] = [
   {
     id: "action-summary",
     label: "Explain a Topic",
-    prompt: "Explain photosynthesis in simple terms with a quick example.",
+    prompt: `Explain ${TOPICS[Math.floor(Math.random() * TOPICS.length)]} in simple terms.`,
   },
   {
     id: "action-quiz",
     label: "Create Quiz",
-    prompt: "Algebra basics",
+    prompt: `Create a quiz about ${TOPICS[Math.floor(Math.random() * TOPICS.length)]}.`,
   },
   {
     id: "action-plan",
     label: "Study Plan",
-    prompt: "Create a focused 30-minute study plan for algebra basics.",
+    prompt: `Create a 30-minute study plan for ${TOPICS[Math.floor(Math.random() * TOPICS.length)]}.`,
   },
 ];
 
@@ -30,7 +32,7 @@ export function createInitialMessages(): ChatMessage[] {
     {
       id: "message-1",
       role: "assistant",
-      content: "Hi there! I am your AI Study Assistant. How can I help you focus today?",
+      content: "Welcome to AIssistant! I'm ready to help you learn. What topic shall we explore together today?",
     },
   ];
 }

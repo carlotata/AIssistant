@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { StudyDashboard } from "@/components/dashboard/study-dashboard";
@@ -21,6 +21,10 @@ export default function DashboardPage() {
     return null;
   }
 
-  return <StudyDashboard />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <StudyDashboard />
+    </Suspense>
+  );
 }
 

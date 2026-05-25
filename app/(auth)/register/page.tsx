@@ -4,6 +4,20 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  name: z.string().trim().min(1, "Please enter your name."),
+  email: z.string().email("Please enter a valid email address."),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match.",
+  path: ["confirmPassword"],
+});
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -27,29 +41,16 @@ export default function RegisterPage() {
     e.preventDefault();
     setValidationError(null);
 
-    const trimmedName = name.trim();
-    const trimmedEmail = email.trim();
-
-    if (!trimmedName) {
-      setValidationError("Please enter your name.");
-      return;
-    }
-    if (!trimmedEmail) {
-      setValidationError("Please enter your email.");
-      return;
-    }
-    if (password.length < 8) {
-      setValidationError("Password must be at least 8 characters long.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setValidationError("Passwords do not match.");
+    const result = registerSchema.safeParse({ name, email, password, confirmPassword });
+    
+    if (!result.success) {
+      setValidationError(result.error.issues[0]?.message || "Invalid input");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await register(trimmedName, trimmedEmail, password);
+      await register(name.trim(), email.trim(), password);
       router.push("/");
     } catch (err) {
       if (err instanceof Error) {

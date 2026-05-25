@@ -102,9 +102,9 @@ export function DashboardHeader({
                            onClick={() => onTabChange(tab.id)}
                            className={[
                               "relative inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all duration-300",
-                              isActive
-                                 ? "bg-white text-blue-600 shadow-sm ring-1 ring-white/50 dark:bg-slate-800 dark:text-blue-400 dark:ring-slate-700"
-                                 : "text-slate-500 hover:bg-white/50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200",
+                              tab.id === activeTabId
+                              ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                              : "text-slate-400 hover:text-white dark:text-slate-500 dark:hover:text-slate-300",
                            ].join(" ")}>
                            <TabIcon icon={tab.icon} />
                            <span>{tab.label}</span>
@@ -120,24 +120,19 @@ export function DashboardHeader({
                   <button
                      type="button"
                      onClick={() => setMenuOpen(!menuOpen)}
-                     className="flex items-center gap-3 rounded-full border border-white bg-white/60 p-1 pr-4 transition-all hover:border-blue-200 hover:shadow-premium active:scale-95 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-blue-800"
+                     className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-1.5 pr-4 transition-all hover:border-white/20 hover:bg-white/10 active:scale-95"
                      aria-label="Open profile">
-                     <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-sm font-black text-white shadow-lg dark:from-blue-600 dark:to-indigo-500">
+                     <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-sm font-black text-white shadow-lg">
                         {initials}
                      </div>
                      <div className="hidden flex-col items-start lg:flex">
-                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                        <span className="text-sm font-bold text-white">
                            {user?.name.split(" ")[0]}
                         </span>
-                        {user?.role === "ADMIN" && (
-                           <span className="text-[8px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
-                              Admin Console
-                           </span>
-                        )}
+                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
+                           Pro Plan
+                        </span>
                      </div>
-                     <svg className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${menuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-                     </svg>
                   </button>
                </div>
 
