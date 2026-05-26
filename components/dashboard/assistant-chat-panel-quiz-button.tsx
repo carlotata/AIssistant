@@ -2,18 +2,14 @@ import { useState } from "react";
 import { apiFetch, ensureCsrfToken } from "@/lib/api";
 import type { Quiz } from "@/types/dashboard";
 
-/**
- * QuizGeneratorButton
- * Manages the lifecycle of quiz creation:
- * - Collapsible "Settings" view to manage quiz count.
- * - Handles quiz generation, results, and retake flows.
- */
+type Difficulty = 'easy' | 'medium' | 'hard';
+
 export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, recentQuizzes }: { topic: string, count: number, conversationId: number, onNavigate: (v: string) => void, recentQuizzes: Quiz[] }) {
     const [quizQuestionCount, setQuizQuestionCount] = useState(count);
+    const [difficulty, setDifficulty] = useState<Difficulty>('medium');
     const [isGenerating, setIsGenerating] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     
-    // Find if a quiz already exists
     const existingQuiz = recentQuizzes.find(q => 
         q.quizTopic.toLowerCase().includes(topic.toLowerCase()) && 
         Number((q as any).conversationId) === Number(conversationId)
@@ -23,30 +19,54 @@ export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, 
         <div className="mt-4 p-5 rounded-2xl bg-slate-800/80 border border-indigo-500/20 shadow-lg backdrop-blur-sm space-y-4">
             <div className="flex items-center justify-between">
                 <span className="text-indigo-400 font-bold text-sm">Quiz: {topic}</span>
-                {!existingQuiz && (
+                {(!existingQuiz || existingQuiz.state !== 'COMPLETED') && (
                     <button 
                         onClick={() => setShowSettings(!showSettings)}
                         className="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider cursor-pointer"
                     >
-                        {showSettings ? "Hide Settings" : "Configure"}
+                        {showSettings ? "Close Settings" : "Quiz Settings"}
                     </button>
                 )}
             </div>
             
-            {showSettings && !existingQuiz && (
-                <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
-                    <div className="flex items-center justify-between">
-                        <span className="text-slate-400 font-bold text-xs">Questions</span>
-                        <span className="text-indigo-400 font-bold text-xs">{quizQuestionCount}</span>
+            {showSettings && (!existingQuiz || existingQuiz.state !== 'COMPLETED') && (
+                <div className="space-y-5 animate-in slide-in-from-top-2 duration-200 border-t border-slate-700 pt-4">
+                    {/* Questions Slider */}
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <span className="text-slate-400 font-bold text-xs">Questions</span>
+                            <span className="text-indigo-400 font-bold text-xs">{quizQuestionCount}</span>
+                        </div>
+                        <input 
+                            type="range" min="1" max="10" value={quizQuestionCount} 
+                            onChange={e => setQuizQuestionCount(parseInt(e.target.value))} 
+                            className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400 transition-all" 
+                        />
                     </div>
-                    <input 
-                        type="range" 
-                        min="1" 
-                        max="10" 
-                        value={quizQuestionCount} 
-                        onChange={e => setQuizQuestionCount(parseInt(e.target.value))} 
-                        className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-indigo-400 hover:accent-indigo-300 transition-all border border-slate-500/50" 
-                    />
+                    
+                    {/* Difficulty Checklist */}
+                    <div className="space-y-2">
+                        <span className="text-slate-400 font-bold text-xs uppercase tracking-wider">Difficulty</span>
+                        <div className="grid grid-cols-3 gap-2">
+                            {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => {
+                                // Color mapping
+                                const colorStyles = {
+                                    easy: difficulty === d ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400 hover:border-emerald-500/50',
+                                    medium: difficulty === d ? 'bg-amber-600 border-amber-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400 hover:border-amber-500/50',
+                                    hard: difficulty === d ? 'bg-rose-600 border-rose-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400 hover:border-rose-500/50'
+                                };
+                                return (
+                                    <button
+                                        key={d}
+                                        onClick={() => setDifficulty(d)}
+                                        className={`px-2 py-2 rounded-lg text-[10px] font-bold uppercase transition-all border ${colorStyles[d]} cursor-pointer`}
+                                    >
+                                        {d}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
             )}
             
@@ -57,7 +77,7 @@ export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, 
                         await ensureCsrfToken();
                         const response = await apiFetch<{ quiz: { id: number } }>("/quizzes", {
                             method: "POST",
-                            body: JSON.stringify({ quizTopic: topic, questionCount: quizQuestionCount, conversationId })
+                            body: JSON.stringify({ quizTopic: topic, questionCount: quizQuestionCount, difficulty, conversationId })
                         });
                         window.dispatchEvent(new Event('refreshSidebar'));
                         onNavigate(`quiz&quizId=${response.quiz.id}`);
@@ -86,9 +106,8 @@ export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, 
                         onClick={async () => {
                             setIsGenerating(true);
                             await ensureCsrfToken();
-                            const response = await apiFetch<{ quiz: { id: number } }>("/quizzes", {
-                                method: "POST",
-                                body: JSON.stringify({ quizTopic: topic, questionCount: count, conversationId })
+                            const response = await apiFetch<{ quiz: { id: number } }>(`/quizzes/${existingQuiz.id}/reset`, {
+                                method: "POST"
                             });
                             setIsGenerating(false);
                             window.dispatchEvent(new Event('refreshSidebar'));

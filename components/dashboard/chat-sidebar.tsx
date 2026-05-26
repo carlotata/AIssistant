@@ -11,7 +11,7 @@ type ChatSidebarProps = {
     onNewChat: () => void;
     onNavigate: (view: string) => void;
     onLogout: () => void;
-    onRetakeQuiz: (topic: string) => Promise<void>;
+    onRetakeQuiz: (quizId: number) => Promise<void>;
     onTakeQuiz: (quizId: number) => void;
     onDeleteConversation: (id: number) => void;
     onDeleteQuiz: (id: number) => void;
@@ -142,14 +142,14 @@ export function ChatSidebar({ conversations, quizzes, currentView, onSelectConve
     );
 }
 
-function QuizSidebarItem({ quiz, onTakeQuiz, onRetakeQuiz, onDeleteQuiz }: { quiz: Quiz, onTakeQuiz: (id: number) => void, onRetakeQuiz: (topic: string) => Promise<void>, onDeleteQuiz: (id: number) => void }) {
+function QuizSidebarItem({ quiz, onTakeQuiz, onRetakeQuiz, onDeleteQuiz }: { quiz: Quiz, onTakeQuiz: (id: number) => void, onRetakeQuiz: (quizId: number) => Promise<void>, onDeleteQuiz: (id: number) => void }) {
     const [isGenerating, setIsGenerating] = useState(false);
     
     const handleRetake = async () => {
         if (isGenerating) return;
         setIsGenerating(true);
         try {
-            await onRetakeQuiz(quiz.quizTopic);
+            await onRetakeQuiz(quiz.id);
         } finally {
             setIsGenerating(false);
         }

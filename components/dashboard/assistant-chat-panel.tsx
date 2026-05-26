@@ -7,11 +7,12 @@ import { useFileUpload, type UploadedFile } from "@/lib/use-file-upload";
 
 // ... Helper to strip markdown ... (removed as previously requested)
 
-// Scoped topic parsing
+// Scoped topic parsing - restricted to fewer words to avoid cut-offs
 const getQuizTopicForMessage = (messages: ChatMessage[], messageIndex: number) => {
     const precedingMessages = messages.slice(0, messageIndex + 1).reverse();
     for (const msg of precedingMessages) {
-        const topicMatch = msg.content.match(/(?:topic|about|on)\s+([a-zA-Z0-9\s]+?)(?=\.|\?|!|$)/i);
+        // Look for 'about/topic/on' and capture only up to 3-4 words max
+        const topicMatch = msg.content.match(/(?:topic|about|on)\s+([a-zA-Z0-9\s]{1,40}?)(?=\.|\?|!|$|\s+and|\s+that)/i);
         if (topicMatch) return topicMatch[1].trim();
     }
     return "General Study Topic";
@@ -34,7 +35,7 @@ function AttachmentPreview({ file, onRemove, progress }: { file: UploadedFile | 
     const isImage = type.startsWith('image/');
 
     return (
-        <div className="relative flex items-center gap-3 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 animate-in slide-in-from-bottom-2 fade-in duration-200 min-w-[200px] max-w-sm">
+        <div className="relative flex items-center gap-3 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 animate-in slide-in-from-bottom-2 fade-in duration-200 min-w-50 max-w-sm">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-indigo-500 text-white overflow-hidden">
                 {isImage && isUploaded ? (
                     <img src={`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}${file.url}`} alt={name} className="h-full w-full object-cover" />
@@ -117,10 +118,25 @@ export function AssistantChatPanel({
 
    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+      const allowedTypes = [
+          "image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "application/vnd.ms-excel",
+          "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+          "application/vnd.ms-powerpoint",
+          "text/plain"
+      ];
+      
       if (file) {
-          const uploaded = await uploadFile(file);
-          if (uploaded) {
-              setAttachments(prev => [...prev, uploaded]);
+          if (!allowedTypes.includes(file.type)) {
+              alert("File type not supported. Please upload an Image, PDF, Word, Excel, PPT, or Text file.");
+          } else {
+              const uploaded = await uploadFile(file);
+              if (uploaded) {
+                  setAttachments(prev => [...prev, uploaded]);
+              }
           }
       }
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -143,11 +159,17 @@ export function AssistantChatPanel({
    };
 
    const handleSubmit = () => {
-       if (!inputValue.trim() && attachments.length === 0) return;
-       onSubmitMessage(inputValue, searchMode, attachments);
+       const content = inputValue;
+
+       if (!content.trim() && attachments.length === 0) return;
+
+       // Pass the captured content directly as the first argument
+       onSubmitMessage(content, searchMode, attachments);
+
+       // Clear input only after submission is triggered
+       onInputChange(""); 
        setAttachments([]);
    };
-
    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
    return (

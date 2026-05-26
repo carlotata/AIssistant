@@ -75,6 +75,7 @@ export function StudyDashboard() {
    }, [searchParams]);
 
    async function loadSummary() {
+      console.log("DEBUG: Loading dashboard summary...");
       const data = await apiFetch<DashboardSummary>("/dashboard/summary");
       setSummary(data);
    }
@@ -101,6 +102,7 @@ export function StudyDashboard() {
    };
 
    const pushChatPrompt = async (prompt: string, searchMode: boolean = false, attachments: UploadedFile[] = []) => {
+      console.log("DEBUG: pushChatPrompt received prompt:", prompt, "attachments:", attachments);
       if (!prompt.trim() && attachments.length === 0) return;
       setSubmitting(true);
       const conversationId = activeConversationId ?? 0;
@@ -136,7 +138,7 @@ export function StudyDashboard() {
                     name: a.originalName,
                     type: a.mimeType,
                     url: a.url,
-                    data: a.data // Include Base64 for scanning
+                    extractedText: a.extractedText // Explicitly include the extracted text
                 }))
             }),
          });
@@ -188,11 +190,10 @@ export function StudyDashboard() {
             onNewChat={startNewChat}
             onNavigate={(view) => router.push(`${pathname}?view=${view}`)}
             onLogout={async () => await logout()}
-            onRetakeQuiz={async (topic) => {
+            onRetakeQuiz={async (quizId) => {
                 await ensureCsrfToken();
-                const response = await apiFetch<{ quiz: { id: number } }>("/quizzes", {
-                    method: "POST",
-                    body: JSON.stringify({ quizTopic: topic, questionCount: 5 })
+                const response = await apiFetch<{ quiz: { id: number } }>(`/quizzes/${quizId}/reset`, {
+                    method: "POST"
                 });
                 await loadSummary();
                 router.push(`${pathname}?view=quiz&quizId=${response.quiz.id}`);
@@ -221,6 +222,10 @@ export function StudyDashboard() {
                           <AIDashboardPanel 
                             recommendations={summary?.recommendations ?? []}
                             onTakeQuiz={(topic) => router.push(`${pathname}?view=quiz&topic=${encodeURIComponent(topic)}`)} 
+                            onReviewWeakTopics={() => {
+                                const weakTopic = summary?.recommendations?.[0]?.topic;
+                                if (weakTopic) router.push(`${pathname}?view=quiz&topic=${encodeURIComponent(weakTopic)}`);
+                            }}
                           />
                        </div>
                    </div>
@@ -233,7 +238,9 @@ export function StudyDashboard() {
                           className="h-full w-full"
                           quickActions={QUICK_ACTIONS}
                           onInputChange={setInputValue}
-                          onSubmitMessage={(content, searchMode, attachments) => { setInputValue(""); pushChatPrompt(content, searchMode, attachments); }}
+                          onSubmitMessage={(content, searchMode, attachments) => { 
+                          pushChatPrompt(content, searchMode, attachments); 
+                       }}
                           onQuickAction={(a) => pushChatPrompt(a.prompt)}
                           onNavigate={(view) => router.push(`${pathname}?view=${view}`)}
                           recentQuizzes={summary?.recentQuizzes ?? []}

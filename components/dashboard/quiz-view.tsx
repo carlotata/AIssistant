@@ -34,6 +34,7 @@ export function QuizView() {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [topic, setTopic] = useState("");
     const [questionCount, setQuestionCount] = useState(5);
+    const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
 
     // Auto-dismiss toast
     useEffect(() => {
@@ -47,11 +48,14 @@ export function QuizView() {
         const topicParam = searchParams.get("topic");
         const quizIdParam = searchParams.get("quizId");
         
+        console.log("DEBUG QuizView useEffect:", { topicParam, quizIdParam });
+
         if (quizIdParam) {
             loadQuiz(parseInt(quizIdParam));
         } else if (topicParam) {
             setTopic(topicParam);
             setShowCreateForm(true);
+            setLoading(false); // Ensure loading is disabled if we are going straight to form
         } else {
             fetchQuizzes();
         }
@@ -65,13 +69,17 @@ export function QuizView() {
     };
 
     const createQuiz = async () => {
-        if (!topic.trim() || isProcessing) return;
+        if (!topic.trim()) {
+            setToast("Please enter a topic for the quiz.");
+            return;
+        }
+        if (isProcessing) return;
         setIsProcessing(true);
         setLoading(true);
         await ensureCsrfToken();
         const data = await apiFetch<{ quiz: FullQuiz }>("/quizzes", {
             method: "POST",
-            body: JSON.stringify({ quizTopic: topic, questionCount })
+            body: JSON.stringify({ quizTopic: topic, questionCount, difficulty })
         });
         await fetchQuizzes();
         window.dispatchEvent(new Event('refreshSidebar'));
@@ -79,6 +87,7 @@ export function QuizView() {
         setActiveQuiz(data.quiz);
         setTopic("");
         setQuestionCount(5);
+        setDifficulty('medium');
         setLoading(false);
         setIsProcessing(false);
         router.push(`${pathname}?view=quiz&quizId=${data.quiz.id}`);
@@ -110,38 +119,32 @@ export function QuizView() {
         setIsProcessing(false);
     };
 
-    const retakeQuiz = async (topic: string, conversationId?: number) => {
+    const retakeQuiz = async (quizId: number) => {
         if (isProcessing) {
-            setToast("A new quiz is already being prepared...");
+            setToast("A quiz is already being processed...");
             return;
         }
         
         setIsProcessing(true);
         setLoading(true);
-        setToast("Preparing your retake...");
+        setToast("Resetting quiz...");
         
         await ensureCsrfToken();
         try {
-            const body: any = { quizTopic: topic, questionCount: 5 };
-            if (conversationId !== undefined && conversationId !== null) {
-                body.conversationId = Number(conversationId);
-            }
-            
-            const data = await apiFetch<{ quiz: FullQuiz }>("/quizzes", {
-                method: "POST",
-                body: JSON.stringify(body)
+            const data = await apiFetch<{ quiz: FullQuiz }>(`/quizzes/${quizId}/reset`, {
+                method: "POST"
             });
             await fetchQuizzes();
             window.dispatchEvent(new Event('refreshSidebar'));
             setActiveQuiz(data.quiz);
             setLoading(false);
             setIsProcessing(false);
-            setToast("Quiz ready!");
+            setToast("Quiz reset!");
             router.push(`${pathname}?view=quiz&quizId=${data.quiz.id}`);
         } catch (error) {
             setIsProcessing(false);
             setLoading(false);
-            setToast("Failed to prepare retake. Please try again.");
+            setToast("Failed to reset quiz. Please try again.");
         }
     };
 
@@ -199,24 +202,58 @@ export function QuizView() {
         if (showCreateForm) {
             return (
                 <div className="max-w-2xl mx-auto p-8">
+                    {toast && (
+                        <div className="fixed top-4 right-4 z-50 bg-slate-800 border border-slate-700 text-white px-6 py-3 rounded-lg shadow-lg animate-in fade-in duration-300">
+                            {toast}
+                        </div>
+                    )}
                     <h1 className="text-2xl font-bold text-foreground mb-6">Create New Quiz</h1>
-                    <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 space-y-4">
-                        <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topic..." className="w-full bg-slate-100 dark:bg-slate-800 p-4 rounded-lg text-foreground border border-slate-200 dark:border-slate-700"/>                        
+                    <div className="p-8 rounded-2xl bg-slate-800/80 border border-indigo-500/20 shadow-lg backdrop-blur-sm space-y-6">
+                        <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topic..." className="w-full bg-slate-900 p-4 rounded-lg text-foreground border border-slate-700 focus:border-indigo-500 outline-none"/>                        
+                        
+                        {/* Questions Slider */}
                         <div className="space-y-2">
-                           <label className="block text-slate-500 font-bold text-sm">Questions: {questionCount}</label>
+                           <div className="flex items-center justify-between">
+                                <label className="block text-slate-400 font-bold text-xs">Questions</label>
+                                <span className="text-indigo-400 font-bold text-xs">{questionCount}</span>
+                           </div>
                            <input 
                                 type="range" 
                                 min="1" 
                                 max="10" 
                                 value={questionCount} 
                                 onChange={e => setQuestionCount(parseInt(e.target.value))} 
-                                className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+                                className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500 hover:accent-indigo-400 transition-all" 
                             />
                         </div>
 
+                        {/* Difficulty Checklist */}
+                        <div className="space-y-2">
+                            <span className="text-slate-400 font-bold text-xs uppercase tracking-wider">Difficulty</span>
+                            <div className="grid grid-cols-3 gap-2">
+                                {(['easy', 'medium', 'hard'] as ('easy' | 'medium' | 'hard')[]).map((d) => {
+                                    // Color mapping
+                                    const colorStyles = {
+                                        easy: difficulty === d ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400 hover:border-emerald-500/50',
+                                        medium: difficulty === d ? 'bg-amber-600 border-amber-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400 hover:border-amber-500/50',
+                                        hard: difficulty === d ? 'bg-rose-600 border-rose-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400 hover:border-rose-500/50'
+                                    };
+                                    return (
+                                        <button
+                                            key={d}
+                                            onClick={() => setDifficulty(d)}
+                                            className={`px-2 py-2 rounded-lg text-[10px] font-bold uppercase transition-all border ${colorStyles[d]} cursor-pointer`}
+                                        >
+                                            {d}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
                         <div className="flex gap-4 pt-4">
-                            <button onClick={() => {setShowCreateForm(false); router.replace(`${pathname}?view=quiz`)}} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-slate-100 dark:bg-slate-800 text-foreground font-bold hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">Cancel</button>
-                            <button onClick={createQuiz} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-500 cursor-pointer">Create</button>
+                            <button onClick={() => {setShowCreateForm(false); router.replace(`${pathname}?view=quiz`)}} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-slate-700 text-slate-300 font-bold hover:bg-slate-600 cursor-pointer">Cancel</button>
+                            <button onClick={createQuiz} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-500 cursor-pointer">Create Quiz</button>
                         </div>
                     </div>
                 </div>
@@ -266,7 +303,7 @@ export function QuizView() {
                                 </div>
                                 <div className="flex gap-2">
                                     <button onClick={() => loadQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-sm font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors cursor-pointer">Review</button>
-                                    <button onClick={() => retakeQuiz(q.quizTopic, q.conversationId)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-foreground text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">Retake</button>
+                                    <button onClick={() => retakeQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-foreground text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">Retake</button>
                                     <button onClick={() => deleteQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors cursor-pointer">Delete</button>
                                 </div>
                             </div>
