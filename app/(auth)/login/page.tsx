@@ -79,7 +79,7 @@ function LoginForm() {
             </svg>
           </div>
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            AI<span className="brand-text-gradient">ssistant</span>
+            AI<span className="bg-linear-to-tr from-blue-600 to-indigo-500 bg-clip-text text-transparent">ssistant</span>
           </h1>
           <p className="mt-2 text-sm text-slate-400">
             Welcome back! Sign in to continue your learning journey

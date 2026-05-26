@@ -85,7 +85,7 @@ export function DashboardHeader({
                      <SparklesIcon className="h-6 w-6 animate-pulse" />
                   </div>
                   <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
-                     AI<span className="brand-text-gradient">ssistant</span>
+                     AI<span className="bg-linear-to-tr from-blue-600 to-indigo-500 bg-clip-text text-transparent">ssistant</span>
                   </span>
                </div>
 

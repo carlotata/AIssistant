@@ -1,42 +1,45 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  --animate-fade-in: fade-in 0.3s ease-out;
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
-  --brand-primary: #2563eb;
-  --brand-secondary: #6366f1;
-  --brand-gradient: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-/* Dark mode specific styles */
 .dark {
   --background: #020617;
   --foreground: #f8fafc;
-  --brand-primary: #3b82f6;
-  --brand-secondary: #818cf8;
-  --brand-gradient: linear-gradient(135deg, #3b82f6 0%, #818cf8 100%);
 }
 
-button, [role="button"], a {
-  cursor: pointer;
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    border-color: var(--color-slate-200);
+  }
+
+  .dark * {
+    border-color: var(--color-slate-800);
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Custom Scrollbar - More subtle for pro look */
+/* Custom scrollbar - minimal and integrated */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -47,73 +50,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
-  border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
-
-/* Professional card style - less bubbly, more defined */
-.pro-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem; /* rounded-xl */
-}
-
-.dark .pro-card {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 0.75rem; /* rounded-xl */
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(226, 232, 240, 0.5);
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-}
-
-.dark .glass-card {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(30, 41, 59, 0.5);
-}
-
-.brand-gradient {
-  background: var(--brand-gradient);
-}
-
-.brand-text-gradient {
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* More refined shadows */
-.shadow-soft {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-}
-
-.shadow-premium {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-}
-
-/* Animations */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
+  background: color-mix(in srgb, var(--foreground) 20%, transparent);
 }

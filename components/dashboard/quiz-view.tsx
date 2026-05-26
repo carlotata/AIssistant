@@ -220,13 +220,13 @@ export function QuizView() {
 
         return (
             <div className="max-w-2xl mx-auto p-8 space-y-8">
-                <button onClick={() => setShowCreateForm(true)} className="w-full p-6 rounded-xl bg-indigo-600 text-white font-bold text-lg hover:bg-indigo-500 transition-all shadow-premium">Create New Quiz +</button>
+                <button onClick={() => setShowCreateForm(true)} className="w-full p-6 rounded-xl bg-indigo-600 text-white font-bold text-lg hover:bg-indigo-500 transition-all shadow-lg">Create New Quiz +</button>
                 <div>
                     <h1 className="text-lg font-bold text-foreground mb-4">Pending Quizzes</h1>
                     <div className="space-y-3">
                         {pending.length === 0 && <p className="text-slate-500 text-sm">No pending quizzes.</p>}
                         {pending.map(q => (
-                            <div key={q.id} className="flex items-center justify-between p-5 rounded-xl pro-card text-foreground">
+                            <div key={q.id} className="flex items-center justify-between p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-foreground">
                                 <span className="font-medium">{q.quizTopic}</span>
                                 <div className="flex gap-2">
                                     <button onClick={() => loadQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500">Take Now</button>
@@ -251,7 +251,7 @@ export function QuizView() {
                             <p className="text-slate-500 text-sm italic">No matching completed quizzes found.</p>
                         )}
                         {completed.filter(q => q.quizTopic.toLowerCase().includes(topicFilter.toLowerCase())).map(q => (
-                            <div key={q.id} className="pro-card p-6 flex justify-between items-center group transition-shadow hover:shadow-soft">
+                            <div key={q.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex justify-between items-center group transition-shadow hover:shadow-sm">
                                 <div className="space-y-1">
                                     <p className="font-semibold text-foreground">{q.quizTopic}</p>
                                     <div className="flex gap-4 text-xs text-slate-500">
@@ -287,7 +287,7 @@ export function QuizView() {
         <div className="max-w-2xl mx-auto p-8">
             {/* Toast Notification */}
             {toast && (
-                <div className="fixed top-4 right-4 z-50 bg-slate-800 border border-slate-700 text-white px-6 py-3 rounded-lg shadow-premium animate-fade-in">
+                <div className="fixed top-4 right-4 z-50 bg-slate-800 border border-slate-700 text-white px-6 py-3 rounded-lg shadow-lg animate-in fade-in duration-300">
                     {toast}
                 </div>
             )}
@@ -327,7 +327,7 @@ export function QuizView() {
                 </div>
             )}
 
-            <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-premium flex flex-col min-h-[400px]">
+            <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-lg flex flex-col min-h-[400px]">
                 <div className="flex-grow">
                     <h2 className="text-lg font-semibold text-foreground mb-6">
                         {currentQuestionIdx + 1}. {question.questionText}
@@ -373,7 +373,7 @@ export function QuizView() {
                     <button 
                         disabled={currentQuestionIdx === 0 || isProcessing} 
                         onClick={() => setCurrentQuestionIdx(p => p - 1)}
-                        className="px-6 py-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-semibold text-sm shadow-soft"
+                        className="px-6 py-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-semibold text-sm shadow-sm"
                     >
                         Previous
                     </button>
@@ -381,7 +381,7 @@ export function QuizView() {
                         <button 
                             onClick={() => { setActiveQuiz(null); router.replace(`${pathname}?view=quiz`) }}
                             disabled={isProcessing}
-                            className="px-6 py-2.5 rounded-lg bg-slate-800 dark:bg-slate-700 text-white font-semibold hover:bg-slate-900 dark:hover:bg-slate-600 transition-all text-sm shadow-soft"
+                            className="px-6 py-2.5 rounded-lg bg-slate-800 dark:bg-slate-700 text-white font-semibold hover:bg-slate-900 dark:hover:bg-slate-600 transition-all text-sm shadow-sm"
                         >
                             Back to List
                         </button>
@@ -389,7 +389,7 @@ export function QuizView() {
                         <button 
                             disabled={(!submissionResult && !selectedAnswers[question.id] && currentQuestionIdx !== quizToDisplay.questions.length - 1) || isProcessing}
                             onClick={() => currentQuestionIdx === quizToDisplay.questions.length - 1 ? submitQuiz() : setCurrentQuestionIdx(p => p + 1)}
-                            className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-all text-sm shadow-premium disabled:opacity-50"
+                            className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-all text-sm shadow-lg disabled:opacity-50"
                         >
                             {currentQuestionIdx === quizToDisplay.questions.length - 1 ? "Submit" : "Next"}
                         </button>
