@@ -12,11 +12,13 @@ type ProgressViewProps = {
 
 export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
     const [progress, setProgress] = useState<StudyProgress | null>(null);
+    const [topicBreakdown, setTopicBreakdown] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        apiFetch<{ studyProgress: StudyProgress }>("/study-progress").then(data => {
+        apiFetch<{ studyProgress: StudyProgress, topicBreakdown: Record<string, number> }>("/study-progress").then(data => {
             setProgress(data.studyProgress);
+            setTopicBreakdown(data.topicBreakdown);
             setLoading(false);
         });
     }, []);
@@ -28,12 +30,12 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
         <div className="space-y-2">
             <div className="flex justify-between text-sm">
                 <span className="font-medium text-slate-300">{label}</span>
-                <span className="font-bold text-white">{value} / {max}</span>
+                <span className="font-bold text-white">{Math.round(value)} / {max}</span>
             </div>
             <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
                 <div 
                     className="h-full bg-indigo-500 rounded-full transition-all duration-500" 
-                    style={{ width: `${(value / max) * 100}%` }}
+                    style={{ width: `${Math.min((value / max) * 100, 100)}%` }}
                 />
             </div>
         </div>
@@ -74,11 +76,14 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="p-8 rounded-3xl bg-slate-900 border border-white/5">
                     <h2 className="text-lg font-bold text-white mb-6">Topic Proficiency</h2>
-                    <div className="space-y-6">
-                        <ProgressBar label="Quantum Physics" value={8} max={10} />
-                        <ProgressBar label="World History" value={5} max={10} />
-                        <ProgressBar label="Calculus" value={3} max={10} />
-                        <ProgressBar label="JavaScript" value={9} max={10} />
+                    <div className="space-y-6 h-64 overflow-y-auto pr-4">
+                        {Object.entries(topicBreakdown).length === 0 ? (
+                            <p className="text-slate-500 text-sm">No quizzes completed yet.</p>
+                        ) : (
+                            Object.entries(topicBreakdown).map(([topic, score]) => (
+                                <ProgressBar key={topic} label={topic.charAt(0).toUpperCase() + topic.slice(1)} value={score} max={100} />
+                            ))
+                        )}
                     </div>
                 </div>
 

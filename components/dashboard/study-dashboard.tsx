@@ -84,31 +84,32 @@ export function StudyDashboard() {
       return () => window.removeEventListener('refreshSidebar', loadSummary);
    }, []);
 
-   async function loadConversation(conversation: Conversation) {
+   const loadConversation = async (conversation: Conversation) => {
        const messages = await apiFetch<Message[]>(`/conversations/${conversation.id}/messages`);
-       setMessages(messages.map(m => ({ id: m.id.toString(), role: m.role as "user" | "assistant", content: m.content })));
+       setMessages(messages.map(m => ({ id: m.id.toString(), role: m.role as "user" | "assistant", content: m.content, conversationId: m.conversationId })));
        setActiveConversationId(conversation.id);
        router.push(`${pathname}?view=chat&conversationId=${conversation.id}`);
-   }
+   };
 
-   async function pushChatPrompt(prompt: string) {
+   const pushChatPrompt = async (prompt: string) => {
       if (!prompt.trim() || submitting) return;
       setSubmitting(true);
-      setMessages(prev => [...prev, { id: createMessageId(), role: "user", content: prompt }]);
+      const conversationId = activeConversationId ?? 0;
+      setMessages(prev => [...prev, { id: createMessageId(), role: "user", content: prompt, conversationId }]);
       try {
-         let conversationId = activeConversationId;
-         if (!conversationId) {
+         let convId = activeConversationId;
+         if (!convId) {
              const conv = await apiFetch<{ conversation: Conversation }>("/conversations", {
                  method: "POST",
                  body: JSON.stringify({ title: prompt.slice(0, 30) }),
              });
-             conversationId = conv.conversation.id;
-             setActiveConversationId(conversationId);
+             convId = conv.conversation.id;
+             setActiveConversationId(convId);
              await loadSummary();
-             router.push(`${pathname}?view=chat&conversationId=${conversationId}`);
+             router.push(`${pathname}?view=chat&conversationId=${convId}`);
          }
 
-         const data = await apiFetch<{ messages: Message[] }> (`/conversations/${conversationId}/messages`, {
+         const data = await apiFetch<{ messages: Message[] }> (`/conversations/${convId}/messages`, {
             method: "POST",
             body: JSON.stringify({ content: prompt }),
          });
@@ -116,13 +117,13 @@ export function StudyDashboard() {
          if (data?.messages) {
              const assistantMessage = data.messages.find(m => m.role === 'assistant');
              if (assistantMessage) {
-                setMessages(prev => [...prev, { id: assistantMessage.id.toString(), role: "assistant", content: assistantMessage.content }]);
+                setMessages(prev => [...prev, { id: assistantMessage.id.toString(), role: "assistant", content: assistantMessage.content, conversationId: assistantMessage.conversationId }]);
              }
          }
       } finally {
          setSubmitting(false);
       }
-   }
+   };
 
    function startNewChat() {
        setMessages(createInitialMessages());
@@ -148,6 +149,7 @@ export function StudyDashboard() {
          <ChatSidebar 
             conversations={summary?.recentConversations ?? []} 
             quizzes={summary?.recentQuizzes ?? []}
+            currentView={activeView}
             onSelectConversation={loadConversation}
             onNewChat={startNewChat}
             onNavigate={(view) => router.push(`${pathname}?view=${view}`)}

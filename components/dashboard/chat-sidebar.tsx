@@ -6,6 +6,7 @@ import type { Quiz, Conversation } from "@/types/dashboard";
 type ChatSidebarProps = {
     conversations: Conversation[];
     quizzes: Quiz[];
+    currentView: string;
     onSelectConversation: (conversation: Conversation) => void;
     onNewChat: () => void;
     onNavigate: (view: string) => void;
@@ -20,11 +21,13 @@ function OptionsMenu({
     onTake, 
     onRetake, 
     onViewResults,
+    onView,
     onDelete 
 }: { 
     onTake?: () => void, 
     onRetake?: () => void, 
     onViewResults?: () => void,
+    onView?: () => void,
     onDelete: () => void 
 }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -56,6 +59,9 @@ function OptionsMenu({
                     {onRetake && (
                         <button onClick={() => { onRetake(); setIsOpen(false); }} className="w-full text-left px-4 py-2 text-xs text-indigo-400 hover:bg-slate-700 font-bold">Retake</button>
                     )}
+                    {onView && (
+                        <button onClick={() => { onView(); setIsOpen(false); }} className="w-full text-left px-4 py-2 text-xs text-white hover:bg-slate-700 font-bold">View Now</button>
+                    )}
                     <button onClick={() => { onDelete(); setIsOpen(false); }} className="w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-slate-700 font-bold">Delete</button>
                 </div>
             )}
@@ -63,7 +69,10 @@ function OptionsMenu({
     );
 }
 
-export function ChatSidebar({ conversations, quizzes, onSelectConversation, onNewChat, onNavigate, onLogout, onRetakeQuiz, onTakeQuiz, onDeleteConversation, onDeleteQuiz }: ChatSidebarProps) {
+export function ChatSidebar({ conversations, quizzes, currentView, onSelectConversation, onNewChat, onNavigate, onLogout, onRetakeQuiz, onTakeQuiz, onDeleteConversation, onDeleteQuiz }: ChatSidebarProps) {
+    const navLinkClass = (view: string) => 
+        `flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm transition-colors ${currentView === view ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`;
+
     return (
         <aside className="w-80 border-r border-white/5 bg-slate-900 p-4 flex flex-col">
             <div className="mb-8 px-4 font-bold text-xl flex items-center gap-2">
@@ -76,15 +85,15 @@ export function ChatSidebar({ conversations, quizzes, onSelectConversation, onNe
             </button>
 
             <nav className="mb-8 space-y-1">
-                <button onClick={() => onNavigate("dashboard")} className="flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">
+                <button onClick={() => onNavigate("dashboard")} className={navLinkClass("dashboard")}>
                     <ChatIcon className="h-4 w-4" />
                     Dashboard
                 </button>
-                <button onClick={() => onNavigate("quiz")} className="flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">
+                <button onClick={() => onNavigate("quiz")} className={navLinkClass("quiz")}>
                     <ListChecksIcon className="h-4 w-4" />
                     Quizzes
                 </button>
-                <button onClick={() => onNavigate("progress")} className="flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm text-slate-400 hover:bg-slate-800 hover:text-white">
+                <button onClick={() => onNavigate("progress")} className={navLinkClass("progress")}>
                     <TrendUpIcon className="h-4 w-4" />
                     Progress
                 </button>
@@ -95,7 +104,9 @@ export function ChatSidebar({ conversations, quizzes, onSelectConversation, onNe
                     <h3 className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Recent Quizzes</h3>
                     {quizzes.map((quiz) => (
                         <div key={quiz.id} className="flex items-center justify-between px-4 py-2 text-sm text-slate-400 hover:bg-slate-800/50 rounded-lg group transition-colors">
-                            <span className="truncate flex-1">{quiz.quizTopic}</span>
+                            <button onClick={() => onTakeQuiz(quiz.id)} className="truncate flex-1 text-left hover:text-white transition-colors">
+                                {quiz.quizTopic}
+                            </button>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                                 <OptionsMenu 
                                     onTake={quiz.state !== 'COMPLETED' ? () => onTakeQuiz(quiz.id) : undefined}
@@ -115,7 +126,7 @@ export function ChatSidebar({ conversations, quizzes, onSelectConversation, onNe
                                 {conv.title}
                             </button>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <OptionsMenu onDelete={() => onDeleteConversation(conv.id)} />
+                                <OptionsMenu onView={() => onSelectConversation(conv)} onDelete={() => onDeleteConversation(conv.id)} />
                             </div>
                         </div>
                     ))}

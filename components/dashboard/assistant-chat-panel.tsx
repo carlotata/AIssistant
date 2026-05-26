@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SendIcon, SparklesIcon } from "../icons/dashboard-icons";
 import type { ChatMessage, QuickAction, Quiz } from "@/types/dashboard";
 import { apiFetch, ensureCsrfToken } from "@/lib/api";
@@ -12,6 +12,95 @@ function stripMarkdown(text: string): string {
         .replace(/## (.*)/g, '$1')
         .replace(/# (.*)/g, '$1')
         .replace(/\[(.*?)\]\((.*?)\)/g, '$1'); // Convert links to text
+}
+
+// Scoped topic parsing
+const getQuizTopicForMessage = (messages: ChatMessage[], messageIndex: number) => {
+    const precedingMessages = messages.slice(0, messageIndex + 1).reverse();
+    for (const msg of precedingMessages) {
+        const topicMatch = msg.content.match(/(?:topic|about|on)\s+([a-zA-Z0-9\s]+?)(?=\.|\?|!|$)/i);
+        if (topicMatch) return topicMatch[1].trim();
+    }
+    return "General Study Topic";
+};
+
+// Scoped count parsing
+const getQuizCountForMessage = (messages: ChatMessage[], messageIndex: number) => {
+    const precedingMessages = messages.slice(0, messageIndex + 1).reverse();
+    for (const msg of precedingMessages) {
+        const countMatch = msg.content.match(/(\d+)\s*questions?/i);
+        if (countMatch) return parseInt(countMatch[1]);
+    }
+    return 5;
+};
+
+function QuizGeneratorButton({ topic, count, conversationId, onNavigate, recentQuizzes }: { topic: string, count: number, conversationId: number, onNavigate: (v: string) => void, recentQuizzes: Quiz[] }) {
+    const [quizQuestionCount, setQuizQuestionCount] = useState(count);
+    const [isLocalCreated, setIsLocalCreated] = useState(false);
+    
+    // Find if a quiz already exists for this topic and conversation
+    const existingQuiz = recentQuizzes.find(q => 
+        q.quizTopic.toLowerCase().includes(topic.toLowerCase()) && 
+        Number((q as any).conversationId) === Number(conversationId)
+    );
+
+    const isCreated = isLocalCreated || !!existingQuiz;
+
+    return (
+        <div className="mt-6 p-4 rounded-xl bg-slate-900/50 border border-white/5 space-y-3">
+            <label className="block text-slate-400 font-bold text-xs uppercase tracking-widest">
+                Questions: {quizQuestionCount}
+            </label>
+            <input 
+                type="range" 
+                min="1" 
+                max="10" 
+                value={quizQuestionCount} 
+                onChange={e => setQuizQuestionCount(parseInt(e.target.value))} 
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" 
+            />
+            
+            {isCreated ? (
+                existingQuiz && existingQuiz.state === 'COMPLETED' ? (
+                    <button 
+                        onClick={() => onNavigate(`quiz&quizId=${existingQuiz.id}`)}
+                        className="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-500 transition-colors"
+                    >
+                        View Results
+                    </button>
+                ) : (
+                    <button 
+                        disabled
+                        className="w-full rounded-lg bg-slate-700 px-4 py-2 text-sm font-bold text-slate-400 cursor-not-allowed"
+                    >
+                        Quiz Already Created
+                    </button>
+                )
+            ) : (
+                <button 
+                    onClick={async (e) => {
+                        const btn = e.currentTarget;
+                        btn.innerText = "Generating Quiz...";
+                        btn.disabled = true;
+                        setIsLocalCreated(true);
+                        
+                        await ensureCsrfToken();
+                        const response = await apiFetch<{ quiz: { id: number } }>("/quizzes", {
+                            method: "POST",
+                            body: JSON.stringify({ quizTopic: topic, questionCount: quizQuestionCount, conversationId })
+                        });
+                        // Force refresh sidebar
+                        window.dispatchEvent(new Event('refreshSidebar'));
+                        // Navigate directly to the newly created quiz
+                        onNavigate(`quiz&quizId=${response.quiz.id}`);
+                    }}
+                    className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-500 transition-colors"
+                >
+                    Take Quiz Now
+                </button>
+            )}
+        </div>
+    );
 }
 
 type AssistantChatPanelProps = {
@@ -45,32 +134,6 @@ export function AssistantChatPanel({
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
    }, [messages]);
 
-   // Helper to find the latest assistant message with a topic
-   const getLatestQuizContext = () => {
-       const allMessages = [...messages].reverse();
-       
-       let topic = "General Study Topic";
-       let count = 5;
-
-       for (const msg of allMessages) {
-           const topicMatch = msg.content.match(/(?:topic|about|on) ([\w\s]+)/i);
-           const countMatch = msg.content.match(/(\d+)\s*questions?/i);
-           
-           if (topicMatch && topic === "General Study Topic") {
-               topic = topicMatch[1].trim();
-           }
-           if (countMatch && count === 5) {
-               count = parseInt(countMatch[1]);
-           }
-           
-           if (topic !== "General Study Topic" && count !== 5) break;
-       }
-       return { topic, count };
-   };
-
-   const context = getLatestQuizContext();
-   const isQuizCreated = recentQuizzes.some(q => q.quizTopic.toLowerCase().includes(context.topic.toLowerCase()));
-
    return (
       <section className={`flex flex-col overflow-hidden bg-slate-900 ${className}`}>
          <header className="border-b border-white/5 px-6 py-4 flex items-center gap-3">
@@ -81,8 +144,16 @@ export function AssistantChatPanel({
          </header>
 
          <div className="flex-1 space-y-8 overflow-y-auto px-6 py-10">
-            {messages.map((message) => {
+            {messages.map((message, index) => {
                 const isAssistant = message.role === "assistant";
+                const topic = getQuizTopicForMessage(messages, index);
+                const count = getQuizCountForMessage(messages, index);
+                
+                // Retrieve conversationId from message object
+                const conversationId = (message as any).conversationId; 
+                
+                const cleanContent = message.content.replace(/\[\[GENERATE_QUIZ\]\]/g, "").trim();
+                
                 return (
                     <div key={message.id} className={isAssistant ? "flex items-start gap-4" : "flex justify-end"}>
                         {isAssistant && (
@@ -96,32 +167,15 @@ export function AssistantChatPanel({
                                 ? "bg-slate-800 text-slate-100 rounded-tl-none border border-slate-700" 
                                 : "bg-indigo-600 text-white rounded-br-none shadow-indigo-900/20"
                         ].join(" ")}>
-                            <div className="whitespace-pre-wrap">
-                                {stripMarkdown(message.content)}
-                            </div>
-                            {isAssistant && message.content.toLowerCase().includes("take quiz now") && (
-                                <button 
-                                    onClick={async (e) => {
-                                        const btn = e.currentTarget;
-                                        btn.innerText = "Generating Quiz...";
-                                        btn.disabled = true;
-                                        
-                                        const context = getLatestQuizContext();
-                                        await ensureCsrfToken();
-                                        const response = await apiFetch<{ quiz: { id: number } }>("/quizzes", {
-                                            method: "POST",
-                                            body: JSON.stringify({ quizTopic: context.topic, questionCount: context.count })
-                                        });
-                                        // Force refresh sidebar
-                                        window.dispatchEvent(new Event('refreshSidebar'));
-                                        // Navigate directly to the newly created quiz
-                                        onNavigate(`quiz&quizId=${response.quiz.id}`);
-                                    }}
-                                    disabled={isQuizCreated}
-                                    className="mt-4 w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors"
-                                >
-                                    {isQuizCreated ? "Quiz Already Created" : "Take Quiz Now"}
-                                </button>
+                            {cleanContent && (
+                                <div className="whitespace-pre-wrap">
+                                    {stripMarkdown(cleanContent)}
+                                </div>
+                            )}
+                            
+                            {/* Render UI if trigger found in content */}
+                            {isAssistant && message.content.includes("[[GENERATE_QUIZ]]") && (
+                                <QuizGeneratorButton topic={topic} count={count} conversationId={conversationId} onNavigate={onNavigate} recentQuizzes={recentQuizzes} />
                             )}
                         </div>
                     </div>

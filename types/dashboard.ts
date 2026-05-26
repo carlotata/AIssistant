@@ -14,6 +14,7 @@ export type ChatMessage = {
   id: string;
   role: "assistant" | "user";
   content: string;
+  conversationId?: number;
 };
 
 export type StudyQuestion = {
@@ -27,6 +28,7 @@ export type StudyQuestion = {
 export type Quiz = {
   id: number;
   studentId: number;
+  conversationId?: number;
   quizTopic: string;
   score: number | null;
   state: "GENERATED" | "COMPLETED";

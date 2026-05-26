@@ -1,0 +1,79 @@
+function QuizGeneratorButton({ topic, count, conversationId, onNavigate, recentQuizzes }: { topic: string, count: number, conversationId: number, onNavigate: (v: string) => void, recentQuizzes: Quiz[] }) {
+    const [quizQuestionCount, setQuizQuestionCount] = useState(count);
+    const [isLocalCreated, setIsLocalCreated] = useState(false);
+    
+    // Find if a quiz already exists for this topic and conversation
+    const existingQuiz = recentQuizzes.find(q => 
+        q.quizTopic.toLowerCase().includes(topic.toLowerCase()) && 
+        Number((q as any).conversationId) === Number(conversationId)
+    );
+
+    const isCreated = isLocalCreated || !!existingQuiz;
+
+    return (
+        <div className="mt-6 p-4 rounded-xl bg-slate-900/50 border border-white/5 space-y-3">
+            <label className="block text-slate-400 font-bold text-xs uppercase tracking-widest">
+                Questions: {quizQuestionCount}
+            </label>
+            <input 
+                type="range" 
+                min="1" 
+                max="10" 
+                value={quizQuestionCount} 
+                onChange={e => setQuizQuestionCount(parseInt(e.target.value))} 
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500" 
+            />
+            
+            {isCreated ? (
+                existingQuiz && existingQuiz.state === 'COMPLETED' ? (
+                    <div className="flex gap-2">
+                        <button 
+                            onClick={() => onNavigate(`quiz&quizId=${existingQuiz.id}`)}
+                            className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-500 transition-colors"
+                        >
+                            View Results
+                        </button>
+                        <button 
+                            onClick={() => {
+                                // Re-trigger quiz creation logic via parent
+                                onNavigate(`quiz&quizId=${existingQuiz.id}&retake=true`);
+                            }}
+                            className="flex-1 rounded-lg bg-slate-700 px-4 py-2 text-sm font-bold text-white hover:bg-slate-600 transition-colors"
+                        >
+                            Retake
+                        </button>
+                    </div>
+                ) : (
+                    <button 
+                        disabled
+                        className="w-full rounded-lg bg-slate-700 px-4 py-2 text-sm font-bold text-slate-400 cursor-not-allowed"
+                    >
+                        Quiz Already Created
+                    </button>
+                )
+            ) : (
+                <button 
+                    onClick={async (e) => {
+                        const btn = e.currentTarget;
+                        btn.innerText = "Generating Quiz...";
+                        btn.disabled = true;
+                        setIsLocalCreated(true);
+                        
+                        await ensureCsrfToken();
+                        const response = await apiFetch<{ quiz: { id: number } }>("/quizzes", {
+                            method: "POST",
+                            body: JSON.stringify({ quizTopic: topic, questionCount: quizQuestionCount, conversationId })
+                        });
+                        // Force refresh sidebar
+                        window.dispatchEvent(new Event('refreshSidebar'));
+                        // Navigate directly to the newly created quiz
+                        onNavigate(`quiz&quizId=${response.quiz.id}`);
+                    }}
+                    className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-500 transition-colors"
+                >
+                    Take Quiz Now
+                </button>
+            )}
+        </div>
+    );
+}
