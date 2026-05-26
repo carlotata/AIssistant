@@ -7,6 +7,7 @@ export type UploadedFile = {
     mimeType: string;
     size: number;
     data?: string; // Base64 data for scanning
+    extractedText?: string;
 };
 
 export function useFileUpload() {

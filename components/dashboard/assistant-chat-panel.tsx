@@ -62,7 +62,7 @@ function AttachmentPreview({ file, onRemove, progress }: { file: UploadedFile | 
 
 function ImageLightbox({ url, name, onClose }: { url: string, name: string, onClose: () => void }) {
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4" onClick={onClose}>
+        <div className="fixed inset-0 z-200 flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4" onClick={onClose}>
             <button onClick={onClose} className="absolute top-6 right-6 p-3 text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer">
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
