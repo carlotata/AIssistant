@@ -148,7 +148,7 @@ export function ChatSidebar({ conversations, quizzes, currentView, isOpen, onClo
                 <section>
                     <button 
                         onClick={() => setQuizzesExpanded(!quizzesExpanded)}
-                        className="w-full px-2 flex items-center justify-between py-2 group cursor-pointer hover:bg-white/[0.02] rounded-lg transition-colors"
+                        className="w-full px-2 flex items-center justify-between py-2 group cursor-pointer hover:bg-white/2 rounded-lg transition-colors"
                     >
                         <div className="flex items-center gap-3">
                             <svg className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${quizzesExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>
@@ -179,7 +179,7 @@ export function ChatSidebar({ conversations, quizzes, currentView, isOpen, onClo
                 <section>
                     <button 
                         onClick={() => setChatsExpanded(!chatsExpanded)}
-                        className="w-full px-2 flex items-center justify-between py-2 group cursor-pointer hover:bg-white/[0.02] rounded-lg transition-colors"
+                        className="w-full px-2 flex items-center justify-between py-2 group cursor-pointer hover:bg-white/2 rounded-lg transition-colors"
                     >
                         <div className="flex items-center gap-3">
                             <svg className={`h-3 w-3 text-slate-500 transition-transform duration-200 ${chatsExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>

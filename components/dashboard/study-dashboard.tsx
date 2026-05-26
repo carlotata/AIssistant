@@ -27,7 +27,7 @@ function Metric({ label, value, icon, onClick }: { label: string; value: string;
    return (
       <button 
         onClick={onClick}
-        className="group flex min-h-24 min-w-0 flex-col items-center sm:items-start justify-between gap-4 rounded-xl border border-white/5 bg-slate-900 p-6 shadow-sm transition-all duration-300 hover:border-indigo-500/50 hover:bg-slate-800 sm:flex-row sm:items-center w-full text-center sm:text-left cursor-pointer"
+        className="group flex min-h-24 min-w-0 flex-col items-center justify-between gap-4 rounded-xl border border-white/5 bg-slate-900 p-6 shadow-sm transition-all duration-300 hover:border-indigo-500/50 hover:bg-slate-800 sm:flex-row sm:items-center w-full text-center sm:text-left cursor-pointer"
       >
          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-indigo-500/10 text-indigo-400 transition-colors group-hover:bg-indigo-500 group-hover:text-white shadow-inner">
             {icon ?? <TrendUpIcon className="h-7 w-7" />}
@@ -106,8 +106,9 @@ export function StudyDashboard() {
    };
 
    const pushChatPrompt = async (prompt: string, searchMode: boolean = false, attachments: UploadedFile[] = []) => {
-      console.log("DEBUG: pushChatPrompt received prompt:", prompt, "attachments:", attachments);
+      console.log("DEBUG: Processing prompt with attachments", { prompt, attachments });
       if (!prompt.trim() && attachments.length === 0) return;
+      
       setSubmitting(true);
       const conversationId = activeConversationId ?? 0;
       
@@ -119,9 +120,12 @@ export function StudyDashboard() {
           attachments: attachments.map(a => ({ name: a.originalName, type: a.mimeType, url: a.url }))
       };
       
+      // Optimistically add user message
       setMessages(prev => [...prev, userMessage]);
+      
       try {
          let convId = activeConversationId;
+         // Ensure we have a conversation context established
          if (!convId) {
              const conv = await apiFetch<{ conversation: Conversation }>("/conversations", {
                  method: "POST",
@@ -133,6 +137,8 @@ export function StudyDashboard() {
              router.push(`${pathname}?view=chat&conversationId=${convId}`);
          }
 
+         // Send request with full context
+         console.log("DEBUG: Sending context to API...");
          const data = await apiFetch<{ messages: Message[] }> (`/conversations/${convId}/messages`, {
             method: "POST",
             body: JSON.stringify({ 
@@ -142,24 +148,32 @@ export function StudyDashboard() {
                     name: a.originalName,
                     type: a.mimeType,
                     url: a.url,
-                    extractedText: a.extractedText // Explicitly include the extracted text
+                    extractedText: a.extractedText
                 }))
             }),
          });
          
+         // Response processing: Update with server-side result
          if (data?.messages) {
-             const assistantMessage = data.messages.find(m => m.role === 'assistant');
-             if (assistantMessage) {
-                console.log("Adding assistant message to state:", assistantMessage);
-                setMessages(prev => [...prev, { 
-                    id: assistantMessage.id.toString(), 
-                    role: "assistant", 
-                    content: assistantMessage.content, 
-                    conversationId: assistantMessage.conversationId,
-                    attachments: assistantMessage.attachments
-                }]);
-             }
+             console.log("DEBUG: API Response received", data.messages);
+             const newMessages = data.messages.filter(m => !messages.find(prev => prev.id === m.id.toString()));
+             
+             setMessages(prev => [...prev, ...newMessages.map(m => ({ 
+                 id: m.id.toString(), 
+                 role: m.role as "user" | "assistant", 
+                 content: m.content, 
+                 conversationId: m.conversationId,
+                 attachments: m.attachments 
+             }))]);
          }
+      } catch (err) {
+          console.error("DEBUG: Failed to send prompt", err);
+          setMessages(prev => [...prev, { 
+              id: createMessageId(), 
+              role: "assistant", 
+              content: "I'm sorry, I encountered an error while processing your request. Please try again.", 
+              conversationId,
+          }]);
       } finally {
          setSubmitting(false);
       }
