@@ -1,0 +1,106 @@
+import { useState } from "react";
+import { apiFetch, ensureCsrfToken } from "@/lib/api";
+import type { Quiz } from "@/types/dashboard";
+
+/**
+ * QuizGeneratorButton
+ * Manages the lifecycle of quiz creation:
+ * - Collapsible "Settings" view to manage quiz count.
+ * - Handles quiz generation, results, and retake flows.
+ */
+export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, recentQuizzes }: { topic: string, count: number, conversationId: number, onNavigate: (v: string) => void, recentQuizzes: Quiz[] }) {
+    const [quizQuestionCount, setQuizQuestionCount] = useState(count);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    
+    // Find if a quiz already exists
+    const existingQuiz = recentQuizzes.find(q => 
+        q.quizTopic.toLowerCase().includes(topic.toLowerCase()) && 
+        Number((q as any).conversationId) === Number(conversationId)
+    );
+
+    return (
+        <div className="mt-4 p-5 rounded-2xl bg-slate-800/80 border border-indigo-500/20 shadow-lg backdrop-blur-sm space-y-4">
+            <div className="flex items-center justify-between">
+                <span className="text-indigo-400 font-bold text-sm">Quiz: {topic}</span>
+                {!existingQuiz && (
+                    <button 
+                        onClick={() => setShowSettings(!showSettings)}
+                        className="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider cursor-pointer"
+                    >
+                        {showSettings ? "Hide Settings" : "Configure"}
+                    </button>
+                )}
+            </div>
+            
+            {showSettings && !existingQuiz && (
+                <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
+                    <div className="flex items-center justify-between">
+                        <span className="text-slate-400 font-bold text-xs">Questions</span>
+                        <span className="text-indigo-400 font-bold text-xs">{quizQuestionCount}</span>
+                    </div>
+                    <input 
+                        type="range" 
+                        min="1" 
+                        max="10" 
+                        value={quizQuestionCount} 
+                        onChange={e => setQuizQuestionCount(parseInt(e.target.value))} 
+                        className="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-indigo-400 hover:accent-indigo-300 transition-all border border-slate-500/50" 
+                    />
+                </div>
+            )}
+            
+            {!existingQuiz || existingQuiz.state !== 'COMPLETED' ? (
+                <button 
+                    onClick={async () => {
+                        setIsGenerating(true);
+                        await ensureCsrfToken();
+                        const response = await apiFetch<{ quiz: { id: number } }>("/quizzes", {
+                            method: "POST",
+                            body: JSON.stringify({ quizTopic: topic, questionCount: quizQuestionCount, conversationId })
+                        });
+                        window.dispatchEvent(new Event('refreshSidebar'));
+                        onNavigate(`quiz&quizId=${response.quiz.id}`);
+                    }}
+                    disabled={isGenerating}
+                    className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white hover:bg-indigo-500 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                    {isGenerating ? (
+                        <>
+                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Generating...
+                        </>
+                    ) : (
+                        "Take Practice Quiz"
+                    )}
+                </button>
+            ) : (
+                <div className="flex gap-2">
+                    <button 
+                        onClick={() => onNavigate(`quiz&quizId=${existingQuiz.id}`)}
+                        className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-500 transition-colors cursor-pointer"
+                    >
+                        View Results
+                    </button>
+                    <button 
+                        onClick={async () => {
+                            setIsGenerating(true);
+                            await ensureCsrfToken();
+                            const response = await apiFetch<{ quiz: { id: number } }>("/quizzes", {
+                                method: "POST",
+                                body: JSON.stringify({ quizTopic: topic, questionCount: count, conversationId })
+                            });
+                            setIsGenerating(false);
+                            window.dispatchEvent(new Event('refreshSidebar'));
+                            onNavigate(`quiz&quizId=${response.quiz.id}`);
+                        }}
+                        disabled={isGenerating}
+                        className="flex-1 rounded-xl bg-slate-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-600 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {isGenerating ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Retake"}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}

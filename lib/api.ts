@@ -83,7 +83,7 @@ function createRequestOptions(options: RequestInit = {}) {
   const requestOptions: RequestInit = { ...options, credentials: "include" };
   const headers = new Headers(options.headers || {});
 
-  if (requestOptions.body && !headers.has("Content-Type")) {
+  if (requestOptions.body && !headers.has("Content-Type") && !(requestOptions.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
 

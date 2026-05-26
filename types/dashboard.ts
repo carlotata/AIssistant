@@ -15,6 +15,7 @@ export type ChatMessage = {
   role: "assistant" | "user";
   content: string;
   conversationId?: number;
+  attachments?: { name: string; type: string; url?: string }[];
 };
 
 export type StudyQuestion = {
@@ -78,6 +79,7 @@ export type Message = {
   role: "user" | "assistant";
   content: string;
   createdAt: string;
+  attachments?: { name: string; type: string; url?: string }[];
 };
 
 export type DashboardSummary = {

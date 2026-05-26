@@ -111,10 +111,15 @@ export function QuizView() {
     };
 
     const retakeQuiz = async (topic: string, conversationId?: number) => {
-        console.log("Retake clicked:", { topic, conversationId });
-        if (isProcessing) return;
+        if (isProcessing) {
+            setToast("A new quiz is already being prepared...");
+            return;
+        }
+        
         setIsProcessing(true);
         setLoading(true);
+        setToast("Preparing your retake...");
+        
         await ensureCsrfToken();
         try {
             const body: any = { quizTopic: topic, questionCount: 5 };
@@ -126,17 +131,17 @@ export function QuizView() {
                 method: "POST",
                 body: JSON.stringify(body)
             });
-            console.log("Retake successful:", data);
             await fetchQuizzes();
             window.dispatchEvent(new Event('refreshSidebar'));
             setActiveQuiz(data.quiz);
             setLoading(false);
             setIsProcessing(false);
+            setToast("Quiz ready!");
             router.push(`${pathname}?view=quiz&quizId=${data.quiz.id}`);
         } catch (error) {
-            console.error("Retake failed:", error);
             setIsProcessing(false);
             setLoading(false);
+            setToast("Failed to prepare retake. Please try again.");
         }
     };
 
@@ -196,7 +201,7 @@ export function QuizView() {
                 <div className="max-w-2xl mx-auto p-8">
                     <h1 className="text-2xl font-bold text-foreground mb-6">Create New Quiz</h1>
                     <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 space-y-4">
-                    <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topic..." className="w-full bg-slate-100 dark:bg-slate-800 p-4 rounded-lg text-foreground border border-slate-200 dark:border-slate-700"/>                        
+                        <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topic..." className="w-full bg-slate-100 dark:bg-slate-800 p-4 rounded-lg text-foreground border border-slate-200 dark:border-slate-700"/>                        
                         <div className="space-y-2">
                            <label className="block text-slate-500 font-bold text-sm">Questions: {questionCount}</label>
                            <input 
@@ -210,8 +215,8 @@ export function QuizView() {
                         </div>
 
                         <div className="flex gap-4 pt-4">
-                            <button onClick={() => {setShowCreateForm(false); router.replace(`${pathname}?view=quiz`)}} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-slate-100 dark:bg-slate-800 text-foreground font-bold hover:bg-slate-200 dark:hover:bg-slate-700">Cancel</button>
-                            <button onClick={createQuiz} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-500">Create</button>
+                            <button onClick={() => {setShowCreateForm(false); router.replace(`${pathname}?view=quiz`)}} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-slate-100 dark:bg-slate-800 text-foreground font-bold hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer">Cancel</button>
+                            <button onClick={createQuiz} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-500 cursor-pointer">Create</button>
                         </div>
                     </div>
                 </div>
@@ -220,7 +225,7 @@ export function QuizView() {
 
         return (
             <div className="max-w-2xl mx-auto p-8 space-y-8">
-                <button onClick={() => setShowCreateForm(true)} className="w-full p-6 rounded-xl bg-indigo-600 text-white font-bold text-lg hover:bg-indigo-500 transition-all shadow-lg">Create New Quiz +</button>
+                <button onClick={() => setShowCreateForm(true)} className="w-full p-6 rounded-xl bg-indigo-600 text-white font-bold text-lg hover:bg-indigo-500 transition-all shadow-lg cursor-pointer">Create New Quiz +</button>
                 <div>
                     <h1 className="text-lg font-bold text-foreground mb-4">Pending Quizzes</h1>
                     <div className="space-y-3">
@@ -229,8 +234,8 @@ export function QuizView() {
                             <div key={q.id} className="flex items-center justify-between p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-foreground">
                                 <span className="font-medium">{q.quizTopic}</span>
                                 <div className="flex gap-2">
-                                    <button onClick={() => loadQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500">Take Now</button>
-                                    <button onClick={() => deleteQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-bold hover:bg-red-200 dark:hover:bg-red-900/30">Delete</button>
+                                    <button onClick={() => loadQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 cursor-pointer">Take Now</button>
+                                    <button onClick={() => deleteQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-bold hover:bg-red-200 dark:hover:bg-red-900/30 cursor-pointer">Delete</button>
                                 </div>
                             </div>
                         ))}
@@ -260,9 +265,9 @@ export function QuizView() {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button onClick={() => loadQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-sm font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors">Review</button>
-                                    <button onClick={() => retakeQuiz(q.quizTopic, q.conversationId)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-foreground text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Retake</button>
-                                    <button onClick={() => deleteQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">Delete</button>
+                                    <button onClick={() => loadQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-sm font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors cursor-pointer">Review</button>
+                                    <button onClick={() => retakeQuiz(q.quizTopic, q.conversationId)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-foreground text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer">Retake</button>
+                                    <button onClick={() => deleteQuiz(q.id)} disabled={isProcessing} className="px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-bold hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors cursor-pointer">Delete</button>
                                 </div>
                             </div>
                         ))}
@@ -285,7 +290,6 @@ export function QuizView() {
 
     return (
         <div className="max-w-2xl mx-auto p-8">
-            {/* Toast Notification */}
             {toast && (
                 <div className="fixed top-4 right-4 z-50 bg-slate-800 border border-slate-700 text-white px-6 py-3 rounded-lg shadow-lg animate-in fade-in duration-300">
                     {toast}
@@ -293,39 +297,52 @@ export function QuizView() {
             )}
             
             <div className="flex items-center gap-4 mb-8">
-                <button onClick={handleBack} disabled={isProcessing} className="text-slate-500 hover:text-foreground">← Back</button>
+                <button onClick={handleBack} disabled={isProcessing} className="text-slate-500 hover:text-foreground cursor-pointer">← Back</button>
                 <h1 className="text-xl font-bold text-foreground">{quizToDisplay.quizTopic}</h1>
                 {submissionResult && <span className="ml-auto text-lg font-bold text-indigo-600 dark:text-indigo-400">Score: {submissionResult.score}%</span>}
             </div>
 
-            {/* Progress Bar */}
-            {!submissionResult && (
-                <div className="mb-8 space-y-3">
-                    <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
-                        <span>Completion</span>
-                        <span>{Math.round((answeredCount / totalQuestions) * 100)}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div 
-                            className="h-full bg-indigo-600 transition-all duration-300 ease-out" 
-                            style={{ width: `${(answeredCount / totalQuestions) * 100}%` }}
-                        />
-                    </div>
-                    <div className="flex gap-1.5 pt-1">
-                        {quizToDisplay.questions.map((q, i) => (
+            {/* Question Navigation Dots */}
+            {/* Question Navigation Dots */}
+            <div className="mb-8 space-y-4">
+                <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                    <span>Question {currentQuestionIdx + 1} of {totalQuestions}</span>
+                    {submissionResult ? (
+                        <span>Review Mode</span>
+                    ) : (
+                        <span>{Math.round((answeredCount / totalQuestions) * 100)}% Complete</span>
+                    )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    {quizToDisplay.questions.map((q, i) => {
+                        const isCurrent = currentQuestionIdx === i;
+                        let stateClasses = "border-slate-600 bg-slate-800 text-slate-400";
+                        
+                        if (submissionResult) {
+                            const isCorrect = q.options.find(o => o.id === selectedAnswers[q.id])?.isCorrect;
+                            stateClasses = isCorrect 
+                                ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400"
+                                : "border-red-500/50 bg-red-500/10 text-red-400";
+                        } else if (selectedAnswers[q.id] !== undefined) {
+                            stateClasses = "border-indigo-500/30 bg-indigo-500/10 text-indigo-300";
+                        }
+
+                        return (
                             <button
                                 key={q.id}
                                 onClick={() => setCurrentQuestionIdx(i)}
-                                className={[
-                                    "h-1.5 flex-1 rounded-full transition-all duration-300",
-                                    currentQuestionIdx === i ? "bg-foreground w-6" : 
-                                    selectedAnswers[q.id] ? "bg-indigo-600" : "bg-slate-300 dark:bg-slate-700"
-                                ].join(" ")}
-                            />
-                        ))}
-                    </div>
+                                className={`h-10 w-10 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer border-2 ${
+                                    isCurrent 
+                                        ? "border-indigo-400 bg-indigo-500 text-white shadow-lg shadow-indigo-500/20" 
+                                        : stateClasses
+                                }`}
+                            >
+                                {i + 1}
+                            </button>
+                        );
+                    })}
                 </div>
-            )}
+            </div>
 
             <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-lg flex flex-col min-h-[400px]">
                 <div className="flex-grow">
@@ -338,7 +355,7 @@ export function QuizView() {
                             const isSelected = selectedAnswers[question.id] === option.id;
                             const isCorrect = option.isCorrect;
                             
-                            let baseClasses = "w-full text-left px-5 py-3 rounded-lg border transition-all font-medium text-sm";
+                            let baseClasses = "w-full text-left px-5 py-3 rounded-lg border transition-all font-medium text-sm cursor-pointer";
                             let stateClasses = "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-foreground hover:border-indigo-400";
 
                             if (submissionResult) {
@@ -373,7 +390,7 @@ export function QuizView() {
                     <button 
                         disabled={currentQuestionIdx === 0 || isProcessing} 
                         onClick={() => setCurrentQuestionIdx(p => p - 1)}
-                        className="px-6 py-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-semibold text-sm shadow-sm"
+                        className="px-6 py-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-semibold text-sm shadow-sm cursor-pointer"
                     >
                         Previous
                     </button>
@@ -381,7 +398,7 @@ export function QuizView() {
                         <button 
                             onClick={() => { setActiveQuiz(null); router.replace(`${pathname}?view=quiz`) }}
                             disabled={isProcessing}
-                            className="px-6 py-2.5 rounded-lg bg-slate-800 dark:bg-slate-700 text-white font-semibold hover:bg-slate-900 dark:hover:bg-slate-600 transition-all text-sm shadow-sm"
+                            className="px-6 py-2.5 rounded-lg bg-slate-800 dark:bg-slate-700 text-white font-semibold hover:bg-slate-900 dark:hover:bg-slate-600 transition-all text-sm shadow-sm cursor-pointer"
                         >
                             Back to List
                         </button>
@@ -389,7 +406,7 @@ export function QuizView() {
                         <button 
                             disabled={(!submissionResult && !selectedAnswers[question.id] && currentQuestionIdx !== quizToDisplay.questions.length - 1) || isProcessing}
                             onClick={() => currentQuestionIdx === quizToDisplay.questions.length - 1 ? submitQuiz() : setCurrentQuestionIdx(p => p + 1)}
-                            className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-all text-sm shadow-lg disabled:opacity-50"
+                            className="px-6 py-2.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-all text-sm shadow-lg disabled:opacity-50 cursor-pointer"
                         >
                             {currentQuestionIdx === quizToDisplay.questions.length - 1 ? "Submit" : "Next"}
                         </button>

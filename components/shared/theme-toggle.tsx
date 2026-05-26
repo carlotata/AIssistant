@@ -21,7 +21,7 @@ export function ThemeToggle() {
     <button
       onClick={toggleTheme}
       aria-label="Toggle theme"
-      className="flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1 pr-3 transition-all hover:border-blue-200 hover:shadow-md active:scale-95 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800"
+      className="flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1 pr-3 transition-all hover:border-blue-200 hover:shadow-md active:scale-95 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800 cursor-pointer"
     >
       <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
         {displayIcon}

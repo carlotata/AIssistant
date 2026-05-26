@@ -11,7 +11,7 @@ type ChatSidebarProps = {
     onNewChat: () => void;
     onNavigate: (view: string) => void;
     onLogout: () => void;
-    onRetakeQuiz: (topic: string) => void;
+    onRetakeQuiz: (topic: string) => Promise<void>;
     onTakeQuiz: (quizId: number) => void;
     onDeleteConversation: (id: number) => void;
     onDeleteQuiz: (id: number) => void;
@@ -71,7 +71,7 @@ function OptionsMenu({
 
 export function ChatSidebar({ conversations, quizzes, currentView, onSelectConversation, onNewChat, onNavigate, onLogout, onRetakeQuiz, onTakeQuiz, onDeleteConversation, onDeleteQuiz }: ChatSidebarProps) {
     const navLinkClass = (view: string) => 
-        `flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm transition-colors ${currentView === view ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`;
+        `flex w-full items-center gap-3 rounded-lg px-4 py-2 text-sm transition-colors cursor-pointer ${currentView === view ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`;
 
     return (
         <aside className="w-80 border-r border-white/5 bg-slate-900 p-4 flex flex-col">
@@ -80,7 +80,7 @@ export function ChatSidebar({ conversations, quizzes, currentView, onSelectConve
                 AIssistant
             </div>
 
-            <button onClick={onNewChat} className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-bold text-white hover:bg-indigo-500">
+            <button onClick={onNewChat} className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-bold text-white hover:bg-indigo-500 cursor-pointer">
                 New Chat +
             </button>
 
@@ -103,26 +103,20 @@ export function ChatSidebar({ conversations, quizzes, currentView, onSelectConve
                 <section>
                     <h3 className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Recent Quizzes</h3>
                     {quizzes.map((quiz) => (
-                        <div key={quiz.id} className="flex items-center justify-between px-4 py-2 text-sm text-slate-400 hover:bg-slate-800/50 rounded-lg group transition-colors">
-                            <button onClick={() => onTakeQuiz(quiz.id)} className="truncate flex-1 text-left hover:text-white transition-colors">
-                                {quiz.quizTopic}
-                            </button>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <OptionsMenu 
-                                    onTake={quiz.state !== 'COMPLETED' ? () => onTakeQuiz(quiz.id) : undefined}
-                                    onViewResults={quiz.state === 'COMPLETED' ? () => onTakeQuiz(quiz.id) : undefined}
-                                    onRetake={quiz.state === 'COMPLETED' ? () => onRetakeQuiz(quiz.quizTopic) : undefined} 
-                                    onDelete={() => onDeleteQuiz(quiz.id)} 
-                                />
-                            </div>
-                        </div>
+                        <QuizSidebarItem 
+                            key={quiz.id} 
+                            quiz={quiz} 
+                            onTakeQuiz={onTakeQuiz} 
+                            onRetakeQuiz={onRetakeQuiz} 
+                            onDeleteQuiz={onDeleteQuiz} 
+                        />
                     ))}
                 </section>
                 <section>
                     <h3 className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Chat History</h3>
                     {conversations.map((conv) => (
                         <div key={conv.id} className="flex items-center justify-between px-4 py-2 text-sm text-slate-400 hover:bg-slate-800/50 rounded-lg group transition-colors">
-                            <button onClick={() => onSelectConversation(conv)} className="flex-1 text-left truncate hover:text-white transition-colors">
+                            <button onClick={() => onSelectConversation(conv)} className="flex-1 text-left truncate hover:text-white transition-colors cursor-pointer">
                                 {conv.title}
                             </button>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -135,15 +129,55 @@ export function ChatSidebar({ conversations, quizzes, currentView, onSelectConve
 
             
             <div className="mt-4 pt-4 border-t border-white/5 space-y-2">
-                <a href="mailto:carlaviso040@gmail.com" className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                <a href="mailto:carlaviso040@gmail.com" className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm text-slate-400 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     Help Center
                 </a>
-                <button onClick={onLogout} className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors">
+                <button onClick={onLogout} className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors cursor-pointer">
                     <span>Log Out</span>
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 </button>
             </div>
         </aside>
+    );
+}
+
+function QuizSidebarItem({ quiz, onTakeQuiz, onRetakeQuiz, onDeleteQuiz }: { quiz: Quiz, onTakeQuiz: (id: number) => void, onRetakeQuiz: (topic: string) => Promise<void>, onDeleteQuiz: (id: number) => void }) {
+    const [isGenerating, setIsGenerating] = useState(false);
+    
+    const handleRetake = async () => {
+        if (isGenerating) return;
+        setIsGenerating(true);
+        try {
+            await onRetakeQuiz(quiz.quizTopic);
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    return (
+        <div className="flex items-center justify-between px-4 py-2 text-sm text-slate-400 hover:bg-slate-800/50 rounded-lg group transition-colors">
+            <button 
+                onClick={() => !isGenerating && onTakeQuiz(quiz.id)} 
+                className={`truncate flex-1 text-left transition-colors cursor-pointer ${isGenerating ? 'opacity-50 cursor-not-allowed' : 'hover:text-white'}`}
+                disabled={isGenerating}
+            >
+                {quiz.quizTopic}
+            </button>
+            <div className="flex items-center">
+                {isGenerating ? (
+                    <div className="h-4 w-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mr-2" />
+                ) : (
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <OptionsMenu 
+                            onTake={quiz.state !== 'COMPLETED' ? () => onTakeQuiz(quiz.id) : undefined}
+                            onViewResults={quiz.state === 'COMPLETED' ? () => onTakeQuiz(quiz.id) : undefined}
+                            onRetake={quiz.state === 'COMPLETED' ? handleRetake : undefined} 
+                            onDelete={() => onDeleteQuiz(quiz.id)} 
+                        />
+                    </div>
+                )}
+            </div>
+        </div>
     );
 }

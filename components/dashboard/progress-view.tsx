@@ -101,10 +101,10 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
                     </ul>
 
                     <div className="mt-8 pt-6 border-t border-white/5 flex gap-3">
-                        <button onClick={() => onNavigate("quiz")} className="flex-1 px-4 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-500 transition-colors">
+                        <button onClick={() => onNavigate("quiz")} className="flex-1 px-4 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-500 transition-colors cursor-pointer">
                            Create New Quiz
                         </button>
-                        <button onClick={onResume} className="flex-1 px-4 py-3 bg-slate-800 text-slate-200 text-sm font-bold rounded-xl hover:bg-slate-700 transition-colors">
+                        <button onClick={onResume} className="flex-1 px-4 py-3 bg-slate-800 text-slate-200 text-sm font-bold rounded-xl hover:bg-slate-700 transition-colors cursor-pointer">
                            Resume Study
                         </button>
                     </div>

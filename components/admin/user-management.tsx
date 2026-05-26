@@ -97,7 +97,7 @@ export function UserManagement() {
             />
             <button 
             onClick={() => setShowCreateModal(true)} 
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500"
+            className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 cursor-pointer"
             >
             Add Admin
             </button>
@@ -140,11 +140,11 @@ export function UserManagement() {
                   <td className="px-4 py-3 text-right">
                     {currentUser?.id !== user.id && (
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => setViewingLogs(user)} className="text-indigo-500 hover:text-indigo-400 transition-colors text-xs font-semibold">Logs</button>
+                        <button onClick={() => setViewingLogs(user)} className="text-indigo-500 hover:text-indigo-400 transition-colors text-xs font-semibold cursor-pointer">Logs</button>
                         {user.role !== 'ADMIN' && (
                             <>
-                                <button onClick={() => { setEditingUser(user); editForm.reset(user); }} className="text-slate-500 hover:text-white transition-colors">Edit</button>
-                                <button onClick={() => setDeletingUser(user)} className="text-red-500 hover:text-red-400 transition-colors">Delete</button>
+                                <button onClick={() => { setEditingUser(user); editForm.reset(user); }} className="text-slate-500 hover:text-white transition-colors cursor-pointer">Edit</button>
+                                <button onClick={() => setDeletingUser(user)} className="text-red-500 hover:text-red-400 transition-colors cursor-pointer">Delete</button>
                             </>
                         )}
                       </div>
@@ -163,15 +163,15 @@ export function UserManagement() {
                     <div className="space-y-4">
                         <h3 className="text-xl font-bold text-white">Logs for {viewingLogs.name}</h3>
                         <LogView userId={viewingLogs.id} />
-                        <button onClick={() => setViewingLogs(null)} className="w-full p-4 rounded-xl font-bold bg-indigo-600 text-white hover:bg-indigo-500">Close</button>
+                        <button onClick={() => setViewingLogs(null)} className="w-full p-4 rounded-xl font-bold bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer">Close</button>
                     </div>
                 ) : deletingUser ? (
                     <div className="space-y-4">
                         <h3 className="text-xl font-bold text-white">Delete User</h3>
                         <p className="text-slate-400">Are you sure you want to delete {deletingUser.name}? This cannot be undone.</p>
                         <div className="flex gap-3">
-                            <button onClick={() => setDeletingUser(null)} className="flex-1 p-4 rounded-xl font-bold text-slate-400 hover:text-white">Cancel</button>
-                            <button onClick={() => { deleteMutation.mutate(deletingUser.id); setDeletingUser(null); }} className="flex-1 p-4 rounded-xl font-bold bg-red-600 text-white hover:bg-red-500">Delete</button>
+                            <button onClick={() => setDeletingUser(null)} className="flex-1 p-4 rounded-xl font-bold text-slate-400 hover:text-white cursor-pointer">Cancel</button>
+                            <button onClick={() => { deleteMutation.mutate(deletingUser.id); setDeletingUser(null); }} className="flex-1 p-4 rounded-xl font-bold bg-red-600 text-white hover:bg-red-500 cursor-pointer">Delete</button>
                         </div>
                     </div>
                 ) : (
@@ -186,8 +186,8 @@ export function UserManagement() {
                             <input type="password" {...createForm.register("password")} className="w-full p-4 rounded-xl border border-white/5 bg-slate-800 text-white placeholder-slate-500" placeholder="Password" />
                         )}
                         <div className="flex gap-3 pt-4">
-                            <button type="button" onClick={() => { setShowCreateModal(false); setEditingUser(null); }} className="flex-1 p-4 rounded-xl font-bold text-slate-400 hover:text-white transition-colors">Cancel</button>
-                            <button type="submit" className="flex-1 p-4 rounded-xl font-bold bg-indigo-600 text-white hover:bg-indigo-500 transition-colors">Save</button>
+                            <button type="button" onClick={() => { setShowCreateModal(false); setEditingUser(null); }} className="flex-1 p-4 rounded-xl font-bold text-slate-400 hover:text-white transition-colors cursor-pointer">Cancel</button>
+                            <button type="submit" className="flex-1 p-4 rounded-xl font-bold bg-indigo-600 text-white hover:bg-indigo-500 transition-colors cursor-pointer">Save</button>
                         </div>
                     </form>
                 )}
