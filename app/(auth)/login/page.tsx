@@ -62,7 +62,7 @@ function LoginForm() {
       <div className="relative z-10 w-full max-w-md px-6 py-12">
         {/* Brand Header */}
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-lg shadow-blue-500/30">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-tr from-blue-600 to-indigo-500 shadow-lg shadow-blue-500/30">
             <svg
               className="h-6 w-6 text-white animate-pulse"
               fill="none"
@@ -147,7 +147,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="relative mt-2 w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 py-4 font-bold text-white shadow-lg shadow-blue-500/25 transition duration-300 hover:scale-[1.02] hover:from-blue-500 hover:to-indigo-400 active:scale-[0.98] disabled:scale-100 disabled:opacity-50"
+              className="relative mt-2 w-full overflow-hidden rounded-2xl bg-linear-to-r from-blue-600 to-indigo-500 py-4 font-bold text-white shadow-lg shadow-blue-500/25 transition duration-300 hover:scale-[1.02] hover:from-blue-500 hover:to-indigo-400 active:scale-[0.98] disabled:scale-100 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center gap-2">

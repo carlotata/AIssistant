@@ -34,9 +34,9 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
                 <span className="font-medium text-slate-300">{label}</span>
                 <span className="font-bold text-white">{Math.round(score)}%</span>
             </div>
-            <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-slate-800 rounded-sm overflow-hidden">
                 <div 
-                    className={`h-full rounded-full transition-all duration-500 ${score >= 80 ? 'bg-emerald-500' : score >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`} 
+                    className={`h-full transition-all duration-500 ${score >= 80 ? 'bg-emerald-500' : score >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`} 
                     style={{ width: `${Math.min(score, 100)}%` }}
                 />
             </div>
@@ -46,7 +46,7 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
     return (
         <div className="max-w-4xl mx-auto p-8 space-y-8">
             <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-400">
+                <div className="p-3 rounded-lg bg-indigo-500/10 text-indigo-400">
                     <TrendUpIcon className="h-8 w-8" />
                 </div>
                 <div>
@@ -57,17 +57,17 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
 
             {/* Overview Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-lg">
+                <div className="p-6 rounded-lg bg-slate-900 border border-white/5 shadow-sm">
                     <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Mastery Level</p>
                     <p className="text-4xl font-black text-white mt-3">{progress?.completedTopics ?? 0}</p>
                     <p className="text-sm text-indigo-400 mt-1">Topics fully mastered</p>
                 </div>
-                <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-lg">
+                <div className="p-6 rounded-lg bg-slate-900 border border-white/5 shadow-sm">
                     <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Quiz Performance</p>
                     <p className="text-4xl font-black text-white mt-3">{Math.round(progress?.averageScore ?? 0)}%</p>
                     <p className="text-sm text-green-400 mt-1">Overall accuracy</p>
                 </div>
-                <div className="p-6 rounded-3xl bg-slate-900 border border-white/5 shadow-lg">
+                <div className="p-6 rounded-lg bg-slate-900 border border-white/5 shadow-sm">
                     <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Total Study Time</p>
                     <p className="text-4xl font-black text-white mt-3">{(progress as any)?.activeDays * 45}m</p>
                     <p className="text-sm text-indigo-400 mt-1">Estimated minutes</p>
@@ -76,7 +76,7 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
 
             {/* Detailed Breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="p-8 rounded-3xl bg-slate-900 border border-white/5">
+                <div className="p-8 rounded-lg bg-slate-900 border border-white/5">
                     <h2 className="text-lg font-bold text-white mb-6">Topic Proficiency</h2>
                     <div className="space-y-6 h-64 overflow-y-auto pr-4">
                         {Object.entries(topicBreakdown).length === 0 ? (
@@ -91,16 +91,15 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
                     </div>
                 </div>
 
-                <div className="p-8 rounded-3xl bg-slate-900 border border-white/5">
+                <div className="p-8 rounded-lg bg-slate-900 border border-white/5">
                     <h2 className="text-lg font-bold text-white mb-6">Recent Insights</h2>
                     <ul className="space-y-4">
                         {insights.map((insight, index) => {
-                            // Extract topic: Reviewing messages contain the topic
                             const reviewMatch = insight.match(/Consider reviewing\s+([a-zA-Z0-9\s]+?)(?=\,|$)/i);
                             const extractedTopic = reviewMatch ? reviewMatch[1].trim() : null;
 
                             return (
-                                <li key={index} className="flex flex-col gap-3 text-sm text-slate-300 bg-slate-800/50 p-4 rounded-xl">
+                                <li key={index} className="flex flex-col gap-3 text-sm text-slate-300 bg-slate-800/50 p-4 rounded-lg">
                                     <div className="flex gap-3">
                                         <ListChecksIcon className="h-5 w-5 text-indigo-400 mt-0.5" />
                                         <span>{insight}</span>
@@ -118,10 +117,10 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
                         })}
                     </ul>
                     <div className="mt-8 pt-6 border-t border-white/5 flex gap-3">
-                        <button onClick={() => onNavigate("quiz")} className="flex-1 px-4 py-3 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-500 transition-colors cursor-pointer">
+                        <button onClick={() => onNavigate("quiz")} className="flex-1 px-4 py-3 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-500 transition-colors cursor-pointer">
                            Create New Quiz
                         </button>
-                        <button onClick={onResume} className="flex-1 px-4 py-3 bg-slate-800 text-slate-200 text-sm font-bold rounded-xl hover:bg-slate-700 transition-colors cursor-pointer">
+                        <button onClick={onResume} className="flex-1 px-4 py-3 bg-slate-800 text-slate-200 text-sm font-bold rounded-lg hover:bg-slate-700 transition-colors cursor-pointer">
                            Resume Study
                         </button>
                     </div>

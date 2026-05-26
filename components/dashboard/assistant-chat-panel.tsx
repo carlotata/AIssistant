@@ -158,18 +158,25 @@ export function AssistantChatPanel({
        setAttachments(prev => prev.filter((_, i) => i !== index));
    };
 
-   const handleSubmit = () => {
+   const handleSubmit = async () => {
        const content = inputValue;
-
        if (!content.trim() && attachments.length === 0) return;
 
-       // Pass the captured content directly as the first argument
-       onSubmitMessage(content, searchMode, attachments);
-
-       // Clear input only after submission is triggered
+       // Use local submitting state to show loading during the whole turn
        onInputChange(""); 
        setAttachments([]);
+       
+       // Trigger submission
+       onSubmitMessage(content, searchMode, attachments);
    };
+   
+   // ... inside return, show global submitting state if quiz is being generated (triggered via prop if available or local state)
+   // For now, simple loading indicator in footer:
+   {submitting && (
+       <div className="px-6 py-2 text-xs font-bold text-indigo-400 animate-pulse">
+           {attachments.length > 0 ? "Analyzing file & generating quiz..." : "Assistant is thinking..."}
+       </div>
+   )}
    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
    return (
@@ -209,7 +216,7 @@ export function AssistantChatPanel({
              )}
          </header>
 
-         <div className="flex-1 space-y-8 overflow-y-auto px-6 py-10">
+         <div className="flex-1 space-y-6 overflow-y-auto px-6 py-8">
             {messages.map((message, index) => {
                 const isAssistant = message.role === "assistant";
                 const isTriggered = /\[\[GENERATE_QUIZ\]\]/.test(message.content);
@@ -218,22 +225,22 @@ export function AssistantChatPanel({
                 return (
                     <div key={message.id} className={isAssistant ? "flex items-start gap-4" : "flex justify-end"}>
                         {isAssistant && (
-                            <div className="mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-slate-800 text-indigo-400 border border-slate-700 shadow-inner">
-                                <SparklesIcon className="h-5 w-5" />
+                            <div className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-800 text-indigo-400 border border-slate-700">
+                                <SparklesIcon className="h-4 w-4" />
                             </div>
                         )}
                         <div className={[
-                            "max-w-[85%] rounded-2xl px-6 py-4 text-[15px] leading-relaxed shadow-sm",
+                            "max-w-[80%] rounded-xl px-5 py-3 text-[14px] leading-relaxed shadow-sm",
                             isAssistant 
                                 ? "bg-slate-800 text-slate-100 rounded-tl-none border border-slate-700" 
-                                : "bg-indigo-600 text-white rounded-br-none shadow-indigo-900/20"
+                                : "bg-indigo-600 text-white rounded-br-none"
                         ].join(" ")}>
                             {cleanContent && (
-                                <div className="whitespace-pre-wrap">{cleanContent}</div>
+                                <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap">{cleanContent}</div>
                             )}
 
                             {message.attachments && message.attachments.length > 0 && (
-                                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-white/10 pt-4">
+                                <div className="mt-4 flex flex-wrap gap-2 pt-3 border-t border-white/10">
                                     {message.attachments.map((file, i) => (
                                         <AttachmentPreview key={i} file={file as any} onRemove={() => {}} />
                                     ))}
@@ -241,13 +248,15 @@ export function AssistantChatPanel({
                             )}
 
                             {isAssistant && isTriggered && (
-                                <QuizGeneratorButton 
-                                    topic={getQuizTopicForMessage(messages, index)} 
-                                    count={getQuizCountForMessage(messages, index)} 
-                                    conversationId={(message as any).conversationId} 
-                                    onNavigate={onNavigate} 
-                                    recentQuizzes={recentQuizzes} 
-                                />
+                                <div className="mt-3 pt-3 border-t border-slate-700">
+                                    <QuizGeneratorButton 
+                                        topic={getQuizTopicForMessage(messages, index)} 
+                                        count={getQuizCountForMessage(messages, index)} 
+                                        conversationId={(message as any).conversationId} 
+                                        onNavigate={onNavigate} 
+                                        recentQuizzes={recentQuizzes} 
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -255,10 +264,10 @@ export function AssistantChatPanel({
             })}
             {submitting && (
                 <div className="flex items-start gap-4">
-                    <div className="mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-slate-800 text-indigo-400 border border-slate-700 shadow-inner">
-                        <SparklesIcon className="h-5 w-5 animate-pulse" />
+                    <div className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-800 text-indigo-400 border border-slate-700">
+                        <SparklesIcon className="h-4 w-4 animate-pulse" />
                     </div>
-                    <div className="rounded-2xl rounded-tl-none border border-slate-700 bg-slate-800 px-5 py-4 shadow-sm">
+                    <div className="rounded-xl rounded-tl-none border border-slate-700 bg-slate-800 px-4 py-3">
                         <div className="flex gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.3s]" /><span className="h-1.5 w-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.15s]" /><span className="h-1.5 w-1.5 rounded-full bg-slate-500 animate-bounce" /></div>
                     </div>
                 </div>

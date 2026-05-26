@@ -27,9 +27,9 @@ function Metric({ label, value, icon, onClick }: { label: string; value: string;
    return (
       <button 
         onClick={onClick}
-        className="group flex min-h-24 min-w-0 flex-col items-start justify-between gap-4 rounded-3xl border border-white/5 bg-slate-900 p-6 shadow-2xl transition-all duration-300 hover:border-indigo-500/50 hover:bg-slate-800 sm:flex-row sm:items-center w-full text-left cursor-pointer"
+        className="group flex min-h-24 min-w-0 flex-col items-start justify-between gap-4 rounded-xl border border-white/5 bg-slate-900 p-6 shadow-sm transition-all duration-300 hover:border-indigo-500/50 hover:bg-slate-800 sm:flex-row sm:items-center w-full text-left cursor-pointer"
       >
-         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-indigo-500/10 text-indigo-400 transition-colors group-hover:bg-indigo-500 group-hover:text-white shadow-inner">
+         <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-indigo-500/10 text-indigo-400 transition-colors group-hover:bg-indigo-500 group-hover:text-white shadow-inner">
             {icon ?? <TrendUpIcon className="h-7 w-7" />}
          </div>
          <div className="min-w-0 sm:text-right">
@@ -210,7 +210,7 @@ export function StudyDashboard() {
                    <div className="p-8 h-full overflow-y-auto">
                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                           <div className="lg:col-span-2 space-y-8">
-                              <div className="rounded-3xl border border-white/5 bg-indigo-600/10 p-8">
+                              <div className="rounded-xl border border-white/5 bg-indigo-600/10 p-8">
                                   <h1 className="text-3xl font-black text-white">Welcome Back!</h1>
                                   <p className="text-indigo-200 mt-2">Ready to master a new topic? Check your latest progress below or jump into a new quiz.</p>
                               </div>

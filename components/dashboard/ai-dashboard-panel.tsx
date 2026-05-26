@@ -22,13 +22,13 @@ export function AIDashboardPanel({ onTakeQuiz, onReviewWeakTopics, recommendatio
                     <button 
                         key={i}
                         onClick={() => onTakeQuiz(s.topic)}
-                        className="w-full text-left bg-slate-800 hover:bg-slate-700 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-indigo-500/20 rounded-2xl p-5 border border-white/5 cursor-pointer"
+                        className="w-full text-left bg-slate-800 hover:bg-slate-700 transition-all duration-300 transform hover:scale-[1.01] hover:shadow-md rounded-lg p-5 border border-white/5 cursor-pointer"
                     >
                         <p className="text-sm font-bold text-white mb-1">{s.topic}</p>
                         <p className="text-xs text-slate-400">{s.questions} Questions</p>
                     </button>
                 )) : (
-                    <p className="text-xs text-slate-500 italic">No recommendations yet. Keep studying!</p>
+                    <p className="text-xs text-slate-500 italic">No recommendations yet.</p>
                 )}
             </div>
 
@@ -36,7 +36,7 @@ export function AIDashboardPanel({ onTakeQuiz, onReviewWeakTopics, recommendatio
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Quick Actions</h3>
                 <button 
                     onClick={onReviewWeakTopics}
-                    className="w-full p-4 rounded-xl bg-slate-800 border border-white/5 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg text-slate-300 text-sm font-bold cursor-pointer"
+                    className="w-full p-4 rounded-lg bg-slate-800 border border-white/5 hover:border-indigo-500/50 transition-all duration-300 hover:scale-[1.01] hover:shadow-md text-slate-300 text-sm font-bold cursor-pointer"
                 >
                     Review Weak Topics
                 </button>
