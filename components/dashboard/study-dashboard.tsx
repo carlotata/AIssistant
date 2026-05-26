@@ -27,7 +27,7 @@ function Metric({ label, value, icon, onClick }: { label: string; value: string;
    return (
       <button 
         onClick={onClick}
-        className="group flex min-h-24 min-w-0 flex-col items-start justify-between gap-4 rounded-xl border border-white/5 bg-slate-900 p-6 shadow-sm transition-all duration-300 hover:border-indigo-500/50 hover:bg-slate-800 sm:flex-row sm:items-center w-full text-left cursor-pointer"
+        className="group flex min-h-24 min-w-0 flex-col items-center sm:items-start justify-between gap-4 rounded-xl border border-white/5 bg-slate-900 p-6 shadow-sm transition-all duration-300 hover:border-indigo-500/50 hover:bg-slate-800 sm:flex-row sm:items-center w-full text-center sm:text-left cursor-pointer"
       >
          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-indigo-500/10 text-indigo-400 transition-colors group-hover:bg-indigo-500 group-hover:text-white shadow-inner">
             {icon ?? <TrendUpIcon className="h-7 w-7" />}
@@ -42,7 +42,7 @@ function Metric({ label, value, icon, onClick }: { label: string; value: string;
 
 function ProgressCards({ progress, onNavigate }: { progress: StudyProgress, onNavigate: (view: string) => void }) {
    return (
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 w-full">
          <Metric label="Topics Mastered" value={progress.completedTopics.toString()} icon={<ChatIcon className="h-7 w-7" />} onClick={() => onNavigate("progress")} />
          <Metric label="Quizzes Taken" value={progress.totalQuizzes.toString()} icon={<ListChecksIcon className="h-7 w-7" />} onClick={() => onNavigate("quiz")} />
          <Metric label="Avg Accuracy" value={averageScoreLabel(progress.averageScore)} onClick={() => onNavigate("progress")} />
@@ -63,6 +63,7 @@ export function StudyDashboard() {
    const [inputValue, setInputValue] = useState("");
    const [submitting, setSubmitting] = useState(false);
    const [isProcessing, setIsProcessing] = useState(false);
+   const [sidebarOpen, setSidebarOpen] = useState(false);
 
    useEffect(() => {
        const view = searchParams.get("view") || "chat";
@@ -72,6 +73,8 @@ export function StudyDashboard() {
        if (conversationId && activeConversationId !== parseInt(conversationId)) {
            loadConversation({ id: parseInt(conversationId) } as Conversation);
        }
+       // Close sidebar on navigation (mobile)
+       setSidebarOpen(false);
    }, [searchParams]);
 
    async function loadSummary() {
@@ -99,6 +102,7 @@ export function StudyDashboard() {
        })));
        setActiveConversationId(conversation.id);
        router.push(`${pathname}?view=chat&conversationId=${conversation.id}`);
+       setSidebarOpen(false);
    };
 
    const pushChatPrompt = async (prompt: string, searchMode: boolean = false, attachments: UploadedFile[] = []) => {
@@ -165,6 +169,7 @@ export function StudyDashboard() {
        setMessages(createInitialMessages());
        setActiveConversationId(null);
        router.push(`${pathname}?view=chat`);
+       setSidebarOpen(false);
    }
 
    async function deleteConversation(id: number) {
@@ -181,14 +186,19 @@ export function StudyDashboard() {
    }
 
    return (
-      <div className="flex h-screen bg-slate-950 text-white">
+      <div className="flex h-screen bg-slate-950 text-white overflow-hidden relative">
          <ChatSidebar 
             conversations={summary?.recentConversations ?? []} 
             quizzes={summary?.recentQuizzes ?? []}
             currentView={activeView}
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
             onSelectConversation={loadConversation}
             onNewChat={startNewChat}
-            onNavigate={(view) => router.push(`${pathname}?view=${view}`)}
+            onNavigate={(view) => {
+                router.push(`${pathname}?view=${view}`);
+                setSidebarOpen(false);
+            }}
             onLogout={async () => await logout()}
             onRetakeQuiz={async (quizId) => {
                 await ensureCsrfToken();
@@ -197,36 +207,77 @@ export function StudyDashboard() {
                 });
                 await loadSummary();
                 router.push(`${pathname}?view=quiz&quizId=${response.quiz.id}`);
+                setSidebarOpen(false);
             }}
-            onTakeQuiz={(id) => router.push(`${pathname}?view=quiz&quizId=${id}`)}
+            onTakeQuiz={(id) => {
+                router.push(`${pathname}?view=quiz&quizId=${id}`);
+                setSidebarOpen(false);
+            }}
             onDeleteConversation={deleteConversation}
             onDeleteQuiz={deleteQuiz}
          />
-         <main className="flex-1 overflow-hidden flex flex-col">            <header className="sticky top-0 z-10 border-b border-white/5 p-4 bg-slate-950/80 backdrop-blur-sm">
-                <h2 className="text-xl font-bold capitalize">{activeView}</h2>
+         
+         {/* Overlay for mobile sidebar */}
+         {sidebarOpen && (
+             <div 
+                className="fixed inset-0 z-20 bg-black/60 backdrop-blur-sm lg:hidden"
+                onClick={() => setSidebarOpen(false)}
+             />
+         )}
+
+         <main className="flex-1 overflow-hidden flex flex-col relative min-w-0">
+            <header className="sticky top-0 z-10 border-b border-white/5 p-4 bg-slate-950/80 backdrop-blur-sm flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => setSidebarOpen(true)}
+                        className="p-2 -ml-2 rounded-lg hover:bg-white/5 lg:hidden text-slate-400 hover:text-white transition-colors"
+                        aria-label="Open sidebar"
+                    >
+                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <h2 className="text-xl font-bold capitalize truncate">{activeView}</h2>
+                </div>
             </header>
+            
             <div className="flex-1 min-h-0 overflow-hidden">
                 {activeView === "dashboard" ? (
-                   <div className="p-8 h-full overflow-y-auto">
-                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                          <div className="lg:col-span-2 space-y-8">
-                              <div className="rounded-xl border border-white/5 bg-indigo-600/10 p-8">
-                                  <h1 className="text-3xl font-black text-white">Welcome Back!</h1>
-                                  <p className="text-indigo-200 mt-2">Ready to master a new topic? Check your latest progress below or jump into a new quiz.</p>
+                   <div className="p-4 sm:p-8 h-full overflow-y-auto">
+                       <div className="flex flex-col gap-8 max-w-7xl mx-auto lg:grid lg:grid-cols-3">
+                          <div className="lg:col-span-2 flex flex-col items-center sm:items-stretch space-y-6 sm:space-y-10">
+                              {/* Hero Section: Centered on Mobile */}
+                              <div className="w-full rounded-2xl border border-white/5 bg-linear-to-b from-indigo-600/20 to-transparent p-8 sm:p-10 text-center sm:text-left">
+                                  <div className="mx-auto sm:mx-0 mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-400">
+                                      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                  </div>
+                                  <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight">Welcome Back!</h1>
+                                  <p className="text-slate-400 mt-3 text-base sm:text-lg max-w-lg mx-auto sm:mx-0">You&apos;ve completed 2 lessons this week. Ready to jump into something new?</p>
+                                  <button onClick={() => router.push(`${pathname}?view=chat`)} className="mt-8 px-8 py-3.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 cursor-pointer">
+                                      Start Study Session
+                                  </button>
                               </div>
-                              <ProgressCards 
-                                progress={summary?.studyProgress ?? { id: 0, studentId: 0, completedTopics: 0, totalQuizzes: 0, averageScore: 0, updatedAt: new Date().toISOString() }} 
-                                onNavigate={(view) => router.push(`${pathname}?view=${view}`)}
-                              />
+
+                              <div className="w-full space-y-4">
+                                  <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center sm:text-left">Your Study Progress</h3>
+                                  <ProgressCards 
+                                    progress={summary?.studyProgress ?? { id: 0, studentId: 0, completedTopics: 0, totalQuizzes: 0, averageScore: 0, updatedAt: new Date().toISOString() }} 
+                                    onNavigate={(view) => router.push(`${pathname}?view=${view}`)}
+                                  />
+                              </div>
                           </div>
-                          <AIDashboardPanel 
-                            recommendations={summary?.recommendations ?? []}
-                            onTakeQuiz={(topic) => router.push(`${pathname}?view=quiz&topic=${encodeURIComponent(topic)}`)} 
-                            onReviewWeakTopics={() => {
-                                const weakTopic = summary?.recommendations?.[0]?.topic;
-                                if (weakTopic) router.push(`${pathname}?view=quiz&topic=${encodeURIComponent(weakTopic)}`);
-                            }}
-                          />
+
+                          {/* Side Panel: Left-aligned content for efficiency */}
+                          <div className="w-full max-w-md mx-auto lg:max-w-none lg:mx-0">
+                            <AIDashboardPanel 
+                                recommendations={summary?.recommendations ?? []}
+                                onTakeQuiz={(topic) => router.push(`${pathname}?view=quiz&topic=${encodeURIComponent(topic)}`)} 
+                                onReviewWeakTopics={() => {
+                                    const weakTopic = summary?.recommendations?.[0]?.topic;
+                                    if (weakTopic) router.push(`${pathname}?view=quiz&topic=${encodeURIComponent(weakTopic)}`);
+                                }}
+                            />
+                          </div>
                        </div>
                    </div>
                 ) : activeView === "chat" ? (
@@ -247,11 +298,11 @@ export function StudyDashboard() {
                        />
                    </div>
                 ) : activeView === "quiz" ? (
-                    <div className="p-8 h-full overflow-y-auto">
+                    <div className="p-4 sm:p-8 h-full overflow-y-auto">
                         <QuizView />
                     </div>
                 ) : activeView === "progress" ? (
-                    <div className="p-8 h-full overflow-y-auto">
+                    <div className="p-4 sm:p-8 h-full overflow-y-auto">
                         <ProgressView 
                             onNavigate={(view) => router.push(`${pathname}?view=${view}`)} 
                             onResume={() => {

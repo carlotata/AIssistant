@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { z } from "zod";
+import { Logo } from "@/components/shared/logo";
 
 const registerSchema = z.object({
   name: z.string().trim().min(1, "Please enter your name."),
@@ -72,25 +73,7 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full max-w-md px-6 py-12">
         {/* Brand Header */}
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 shadow-lg shadow-blue-500/30">
-            <svg
-              className="h-6 w-6 text-white animate-pulse"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </div>
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            AI<span className="bg-linear-to-tr from-blue-600 to-indigo-500 bg-clip-text text-transparent">ssistant</span>
-          </h1>
+          <Logo size="lg" className="mb-4" />
           <p className="mt-2 text-sm text-slate-400">
             Create your account to start studying smarter
           </p>

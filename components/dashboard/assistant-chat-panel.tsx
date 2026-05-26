@@ -199,38 +199,38 @@ export function AssistantChatPanel({
              <ImageLightbox url={lightboxImage.url} name={lightboxImage.name} onClose={() => setLightboxImage(null)} />
          )}
 
-         <header className="border-b border-white/5 px-6 py-4 flex items-center justify-between">
+         <header className="border-b border-white/5 px-4 sm:px-6 py-4 flex items-center justify-between">
              <div className="flex items-center gap-3">
                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-500/20 text-indigo-400">
                      <SparklesIcon className="h-6 w-6" />
                  </div>
-                 <h2 className="text-lg font-bold text-white">Study Assistant</h2>
+                 <h2 className="text-lg font-bold text-white truncate max-w-[150px] sm:max-w-none">Study Assistant</h2>
              </div>
              {uploading && (
-                 <div className="flex items-center gap-2 text-indigo-400">
-                     <span className="text-xs font-bold animate-pulse">Uploading...</span>
-                     <div className="h-1 w-20 bg-slate-800 rounded-full overflow-hidden">
+                 <div className="flex items-center gap-2 text-indigo-400 ml-2">
+                     <span className="text-[10px] sm:text-xs font-bold animate-pulse whitespace-nowrap">Uploading...</span>
+                     <div className="h-1 w-12 sm:w-20 bg-slate-800 rounded-full overflow-hidden">
                          <div className="h-full bg-indigo-500" style={{ width: `${progress}%` }} />
                      </div>
                  </div>
              )}
          </header>
 
-         <div className="flex-1 space-y-6 overflow-y-auto px-6 py-8">
+         <div className="flex-1 space-y-6 overflow-y-auto px-4 sm:px-6 py-6 sm:py-8 scrollbar-hide">
             {messages.map((message, index) => {
                 const isAssistant = message.role === "assistant";
                 const isTriggered = /\[\[GENERATE_QUIZ\]\]/.test(message.content);
                 const cleanContent = message.content.replace(/\[\[GENERATE_QUIZ\]\]/g, "").trim();
                 
                 return (
-                    <div key={message.id} className={isAssistant ? "flex items-start gap-4" : "flex justify-end"}>
+                    <div key={message.id} className={isAssistant ? "flex items-start gap-3 sm:gap-4" : "flex justify-end"}>
                         {isAssistant && (
                             <div className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-800 text-indigo-400 border border-slate-700">
                                 <SparklesIcon className="h-4 w-4" />
                             </div>
                         )}
                         <div className={[
-                            "max-w-[80%] rounded-xl px-5 py-3 text-[14px] leading-relaxed shadow-sm",
+                            "max-w-[90%] sm:max-w-[85%] md:max-w-[80%] rounded-xl px-4 sm:px-5 py-3 text-[14px] leading-relaxed shadow-sm",
                             isAssistant 
                                 ? "bg-slate-800 text-slate-100 rounded-tl-none border border-slate-700" 
                                 : "bg-indigo-600 text-white rounded-br-none"
@@ -263,7 +263,7 @@ export function AssistantChatPanel({
                 );
             })}
             {submitting && (
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-3 sm:gap-4">
                     <div className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-800 text-indigo-400 border border-slate-700">
                         <SparklesIcon className="h-4 w-4 animate-pulse" />
                     </div>
@@ -275,16 +275,16 @@ export function AssistantChatPanel({
             <div ref={messagesEndRef} />
          </div>
 
-         <footer className="border-t border-white/5 p-6 bg-slate-900">
+         <footer className="border-t border-white/5 p-4 sm:p-6 bg-slate-900">
             {attachments.length > 0 && (
-                <div className="mb-4 flex flex-wrap gap-3">
+                <div className="mb-4 flex flex-wrap gap-2 sm:gap-3">
                     {attachments.map((file, i) => (
                         <AttachmentPreview key={i} file={file} onRemove={() => removeAttachment(i)} />
                     ))}
                 </div>
             )}
 
-            <div className="relative flex items-center rounded-xl border border-slate-700 bg-slate-800 p-2 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
+            <div className="relative flex items-center rounded-xl border border-slate-700 bg-slate-800 p-1.5 sm:p-2 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
                <input 
                   type="file" 
                   ref={fileInputRef} 
@@ -293,51 +293,53 @@ export function AssistantChatPanel({
                   accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.xls,.xlsx,.ppt,.pptx,.webp,.gif,image/*,application/pdf"
                />
                
-               <button
-                  type="button"
-                  onClick={handleFileTrigger}
-                  disabled={uploading}
-                  className="p-1.5 mr-1 rounded-lg transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-40"
-                  title="Attach file"
-                  aria-label="Attach file">
-                  {uploading ? <div className="h-5 w-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /> : <PlusIcon className="h-5 w-5" />}
-               </button>
+               <div className="flex items-center">
+                  <button
+                     type="button"
+                     onClick={handleFileTrigger}
+                     disabled={uploading}
+                     className="p-1.5 sm:p-2 rounded-lg transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-slate-700 disabled:opacity-40"
+                     title="Attach file"
+                     aria-label="Attach file">
+                     {uploading ? <div className="h-5 w-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /> : <PlusIcon className="h-5 w-5" />}
+                  </button>
 
-               <button
-                  type="button"
-                  onClick={() => setSearchMode(!searchMode)}
-                  className={`p-1.5 mr-2 rounded-lg transition-all cursor-pointer ${searchMode ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}
-                  title="Web Search Mode"
-                  aria-label="Toggle web search">
-                  <GlobeIcon className="h-5 w-5" />
-                  {searchMode && <span className="absolute -top-1 -right-1 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>}
-               </button>
+                  <button
+                     type="button"
+                     onClick={() => setSearchMode(!searchMode)}
+                     className={`p-1.5 sm:p-2 rounded-lg transition-all cursor-pointer ${searchMode ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}
+                     title="Web Search Mode"
+                     aria-label="Toggle web search">
+                     <GlobeIcon className="h-5 w-5" />
+                     {searchMode && <span className="absolute -top-1 -right-1 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>}
+                  </button>
+               </div>
                
                <input
                   value={inputValue}
                   onChange={(event) => onInputChange(event.target.value)}
                   onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); handleSubmit(); } }}
                   disabled={submitting}
-                  placeholder={searchMode ? "Search the web..." : "Send a message..."}
-                  className="flex-1 bg-transparent px-2 text-sm text-white outline-none placeholder:text-slate-500 disabled:opacity-60"
+                  placeholder={searchMode ? "Search web..." : "Message assistant..."}
+                  className="flex-1 bg-transparent px-2 text-[14px] text-white outline-none placeholder:text-slate-500 disabled:opacity-60 min-w-0"
                />
                <button
                   type="button"
                   onClick={handleSubmit}
                   disabled={submitting || uploading || (!inputValue.trim() && attachments.length === 0)}
-                  className="p-1.5 text-indigo-400 hover:text-white disabled:opacity-40 cursor-pointer"
+                  className="p-1.5 sm:p-2 text-indigo-400 hover:text-white disabled:opacity-40 cursor-pointer"
                   aria-label="Send message">
                   <SendIcon className="h-5 w-5" />
                </button>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-1.5 sm:gap-2 justify-center sm:justify-start">
                {quickActions.map((action) => (
                   <button
                      key={action.id}
                      type="button"
                      onClick={() => onQuickAction(action)}
-                     className="rounded-xl border border-white/5 bg-slate-800 px-3 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest transition-all hover:bg-indigo-500 hover:text-white cursor-pointer">
+                     className="rounded-lg border border-white/5 bg-slate-800 px-2.5 py-1.5 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest transition-all hover:bg-indigo-500 hover:text-white cursor-pointer whitespace-nowrap">
                      {action.label}
                   </button>
                ))}
