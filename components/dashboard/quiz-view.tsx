@@ -195,9 +195,8 @@ export function QuizView() {
             return (
                 <div className="max-w-2xl mx-auto p-8">
                     <h1 className="text-2xl font-bold text-foreground mb-6">Create New Quiz</h1>
-                    <div className="pro-card p-8 space-y-4">
-                        <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topic..." className="w-full bg-slate-100 dark:bg-slate-800 p-4 rounded-lg text-foreground border border-slate-200 dark:border-slate-700"/>
-                        
+                    <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 space-y-4">
+                    <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topic..." className="w-full bg-slate-100 dark:bg-slate-800 p-4 rounded-lg text-foreground border border-slate-200 dark:border-slate-700"/>                        
                         <div className="space-y-2">
                            <label className="block text-slate-500 font-bold text-sm">Questions: {questionCount}</label>
                            <input 
@@ -328,7 +327,7 @@ export function QuizView() {
                 </div>
             )}
 
-            <div className="pro-card p-8 shadow-premium flex flex-col min-h-[400px]">
+            <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-premium flex flex-col min-h-[400px]">
                 <div className="flex-grow">
                     <h2 className="text-lg font-semibold text-foreground mb-6">
                         {currentQuestionIdx + 1}. {question.questionText}
