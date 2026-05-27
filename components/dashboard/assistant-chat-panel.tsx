@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import { QuizGeneratorButton } from "./assistant-chat-panel-quiz-button";
 import { SendIcon, SparklesIcon, PlusIcon, FileIcon, GlobeIcon, FileTextIcon } from "../icons/dashboard-icons";
 import type { ChatMessage, QuickAction, Quiz } from "@/types/dashboard";
@@ -118,6 +120,9 @@ export function AssistantChatPanel({
 
    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+      const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+      const MAX_FILES = 5;
+
       const allowedTypes = [
           "image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf",
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -130,7 +135,11 @@ export function AssistantChatPanel({
       ];
       
       if (file) {
-          if (!allowedTypes.includes(file.type)) {
+          if (attachments.length >= MAX_FILES) {
+              alert(`You can only attach up to ${MAX_FILES} files.`);
+          } else if (file.size > MAX_SIZE) {
+              alert("File is too large. Maximum size is 10MB.");
+          } else if (!allowedTypes.includes(file.type)) {
               alert("File type not supported. Please upload an Image, PDF, Word, Excel, PPT, or Text file.");
           } else {
               const uploaded = await uploadFile(file);
@@ -230,13 +239,29 @@ export function AssistantChatPanel({
                             </div>
                         )}
                         <div className={[
-                            "max-w-[90%] sm:max-w-[85%] md:max-w-[80%] rounded-xl px-4 sm:px-5 py-3 text-[14px] leading-relaxed shadow-sm",
+                            "relative group max-w-[90%] sm:max-w-[85%] md:max-w-[80%] rounded-xl px-4 sm:px-5 py-3 text-[14px] leading-relaxed shadow-sm",
                             isAssistant 
                                 ? "bg-slate-800 text-slate-100 rounded-tl-none border border-slate-700" 
                                 : "bg-indigo-600 text-white rounded-br-none"
                         ].join(" ")}>
                             {cleanContent && (
-                                <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap">{cleanContent}</div>
+                                <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap">
+                                    <ReactMarkdown 
+                                        components={{
+                                            a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline" />
+                                        }}
+                                    >{cleanContent}</ReactMarkdown>
+                                </div>
+                            )}
+
+                            {isAssistant && cleanContent && (
+                                <button 
+                                    onClick={() => navigator.clipboard.writeText(cleanContent)}
+                                    className="absolute -right-8 top-2 p-1.5 text-slate-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                    title="Copy to clipboard"
+                                >
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                </button>
                             )}
 
                             {message.attachments && message.attachments.length > 0 && (
@@ -338,8 +363,9 @@ export function AssistantChatPanel({
                   <button
                      key={action.id}
                      type="button"
-                     onClick={() => onQuickAction(action)}
-                     className="rounded-lg border border-white/5 bg-slate-800 px-2.5 py-1.5 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest transition-all hover:bg-indigo-500 hover:text-white cursor-pointer whitespace-nowrap">
+                     onClick={() => !submitting && onQuickAction(action)}
+                     disabled={submitting}
+                     className="rounded-lg border border-white/5 bg-slate-800 px-2.5 py-1.5 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest transition-all hover:bg-indigo-500 hover:text-white cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
                      {action.label}
                   </button>
                ))}
