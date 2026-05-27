@@ -237,7 +237,7 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
                  onChange={(e) => onInputChange(e.target.value)} 
                  onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }} 
                  disabled={submitting || uploading} 
-                 placeholder={uploading ? "Uploading files..." : submitting ? "Assistant is responding..." : (searchMode ? "Searching live web..." : "Message assistant...")} 
+                 placeholder={uploading ? "Uploading files..." : submitting ? "AIssistant is responding..." : (searchMode ? "Searching live web..." : "Message AIssistant...")} 
                  className="flex-1 bg-transparent px-2 text-[14px] text-white outline-none placeholder:text-slate-500 disabled:cursor-not-allowed" 
                />
                <button 
