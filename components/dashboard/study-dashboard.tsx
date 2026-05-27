@@ -59,18 +59,12 @@ export function StudyDashboard() {
    const [activeView, setActiveView] = useState(() => searchParams.get("view") || "chat");
    const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
    const [summary, setSummary] = useState<DashboardSummary | null>(null);
-   const [messages, setMessages] = useState<ChatMessage[]>(createInitialMessages());
+   const [messages, setMessages] = useState<ChatMessage[]>([]);
    const [inputValue, setInputValue] = useState("");
    const [submitting, setSubmitting] = useState(false);
    const [isProcessing, setIsProcessing] = useState(false);
    const [sidebarOpen, setSidebarOpen] = useState(false);
    const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
-
-   useEffect(() => {
-       if (user) {
-           setMessages(createInitialMessages(user.name));
-       }
-   }, [user]);
 
    useEffect(() => {
        const view = searchParams.get("view") || "chat";

@@ -27,6 +27,12 @@ export const QUICK_ACTIONS: QuickAction[] = [
   },
 ];
 
-export function createInitialMessages(): ChatMessage[] {
-  return [];
+export function createInitialMessages(userName?: string): ChatMessage[] {
+  return [
+    {
+      id: "init",
+      role: "assistant",
+      content: `Hello${userName ? `, ${userName}` : ""}! I'm AIsisstant. How can I help you study today?`,
+    },
+  ];
 }
