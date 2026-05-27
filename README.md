@@ -24,6 +24,7 @@ AIssistant is an intelligent academic study assistant designed to help students 
 - **Role-Based Security**: Strict frontend redirects and backend API authorization (Admin vs. Student).
 - **Data Management**: Powered by TanStack Query for caching and auto-syncing.
 - **Form Validation**: Strict schema-based validation using Zod and React Hook Form.
+- **Attachment System**: Support for images (png, jpg, webp, gif), PDF, TXT, and Word documents (.doc/.docx). Includes drag-and-drop support, upload progress tracking, and AI-powered text extraction for study context.
 - **Security**: 
     - Rate-limiting (100 req/min global, 5 req/min on auth routes).
     - CSRF protection.

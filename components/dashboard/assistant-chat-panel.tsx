@@ -98,7 +98,7 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
    };
    
    useEffect(() => {
-       setGreeting(getGreeting(user?.name));
+       setGreeting(getGreeting(user?.name, 'chat'));
    }, [user]);
 
    useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
