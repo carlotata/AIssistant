@@ -10,7 +10,7 @@ import { ChatIcon, ListChecksIcon, TrendUpIcon } from "../icons/dashboard-icons"
 import { QuizView } from "./quiz-view";
 import { ProgressView } from "./progress-view";
 import { AIDashboardPanel } from "./ai-dashboard-panel";
-import type { ChatMessage, DashboardSummary, Quiz, StudyProgress, Conversation, Message } from "@/types/dashboard";
+import type { ChatMessage, DashboardSummary, Quiz, StudyProgress, Conversation, Message, DeleteTarget } from "@/types/dashboard";
 import { useAuth } from "@/lib/auth-context";
 
 import { useFileUpload, type UploadedFile } from "@/lib/use-file-upload";

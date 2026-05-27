@@ -4,6 +4,8 @@ export type DashboardTab = {
   icon: "dashboard" | "chat" | "quiz" | "progress" | "users";
 };
 
+export type DeleteTarget = { id: number; type: 'conversation' | 'quiz' } | null;
+
 export type QuickAction = {
   id: string;
   label: string;
