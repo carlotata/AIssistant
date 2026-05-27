@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiFetch, ensureCsrfToken } from "../lib/api";
+import { apiFetch, ensureCsrfToken, BACKEND_URL } from "../lib/api";
 
 export type UploadedFile = {
     url: string;
@@ -21,13 +21,9 @@ export function useFileUpload() {
         setError(null);
 
         try {
-            await ensureCsrfToken();
+            const csrfToken = await ensureCsrfToken();
             
-            // We use XMLHttpRequest for progress tracking
-            const formData = new FormData();
-            formData.append("file", file);
-
-            // Also read as Base64 for the AI scanning capability
+            // Read as Base64 for the AI scanning capability
             const base64Data = await new Promise<string>((resolve) => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
@@ -37,19 +33,48 @@ export function useFileUpload() {
                 reader.readAsDataURL(file);
             });
 
-            // For now, I'll use fetch as XMLHttpRequest is more verbose to wrap with CSRF etc.
-            // But if I want real progress, I'd need XHR. 
-            // I'll simulate progress for now or just use fetch and set progress to 100 at end.
-            
-            const metadata = await apiFetch<any>("/attachments/upload", {
-                method: "POST",
-                body: formData,
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const result = await new Promise<any>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", `${BACKEND_URL}/attachments/upload`);
+                xhr.withCredentials = true;
+                
+                if (csrfToken) {
+                    xhr.setRequestHeader("X-CSRF-Token", csrfToken);
+                }
+
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percentComplete = (event.loaded / event.total) * 100;
+                        setProgress(Math.round(percentComplete));
+                    }
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            resolve(JSON.parse(xhr.responseText));
+                        } catch (e) {
+                            reject(new Error("Failed to parse server response"));
+                        }
+                    } else {
+                        try {
+                            const errorData = JSON.parse(xhr.responseText);
+                            reject(new Error(errorData.error?.message || "Upload failed"));
+                        } catch (e) {
+                            reject(new Error(`Upload failed with status ${xhr.status}`));
+                        }
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error("Network error occurred"));
+                xhr.send(formData);
             });
 
-            setProgress(100);
-            
             return {
-                ...metadata,
+                ...result,
                 data: base64Data
             };
         } catch (err: any) {
@@ -57,6 +82,7 @@ export function useFileUpload() {
             return null;
         } finally {
             setUploading(false);
+            setProgress(0);
         }
     };
 

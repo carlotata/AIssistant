@@ -12,6 +12,7 @@ import { ProgressView } from "./progress-view";
 import { AIDashboardPanel } from "./ai-dashboard-panel";
 import type { ChatMessage, DashboardSummary, Quiz, StudyProgress, Conversation, Message, DeleteTarget } from "@/types/dashboard";
 import { useAuth } from "@/lib/auth-context";
+import { getGreeting } from "@/constants/greetings";
 
 import { useFileUpload, type UploadedFile } from "@/lib/use-file-upload";
 
@@ -181,7 +182,7 @@ export function StudyDashboard() {
    };
 
    function startNewChat() {
-       setMessages(createInitialMessages(user?.name));
+       setMessages([]);
        setActiveConversationId(null);
        router.push(`${pathname}?view=chat`);
        setSidebarOpen(false);
@@ -228,7 +229,7 @@ export function StudyDashboard() {
    return (
       <div className="flex h-screen bg-slate-950 text-white overflow-hidden w-full max-w-[100vw]">
          {deleteTarget && (
-             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+             <div className="fixed inset-0 z-100 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
                  <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-2xl animate-in zoom-in-95 duration-300">
                      <h3 className="text-lg font-bold text-white mb-2">Delete {deleteTarget.type === 'conversation' ? 'Chat' : 'Quiz'}</h3>
                      <p className="text-slate-400 text-sm mb-6">Are you sure? This action cannot be undone.</p>
@@ -303,13 +304,12 @@ export function StudyDashboard() {
                                   <div className="mx-auto sm:mx-0 mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-400">
                                       <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                                   </div>
-                                  <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight">Welcome Back!</h1>
+                                  <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight">{getGreeting(user?.name)}</h1>
                                   <p className="text-slate-400 mt-3 text-base sm:text-lg max-w-lg mx-auto sm:mx-0">You&apos;ve completed 2 lessons this week. Ready to jump into something new?</p>
                                   <button onClick={() => router.push(`${pathname}?view=chat`)} className="mt-8 px-8 py-3.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 cursor-pointer">
                                       Start Study Session
                                   </button>
                               </div>
-
                               <div className="w-full space-y-4">
                                   <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center sm:text-left">Your Study Progress</h3>
                                   <ProgressCards 
