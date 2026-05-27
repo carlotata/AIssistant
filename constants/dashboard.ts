@@ -28,11 +28,5 @@ export const QUICK_ACTIONS: QuickAction[] = [
 ];
 
 export function createInitialMessages(): ChatMessage[] {
-  return [
-    {
-      id: "message-1",
-      role: "assistant",
-      content: "Welcome to AIssistant! I'm ready to help you learn. What topic shall we explore together today?",
-    },
-  ];
+  return [];
 }

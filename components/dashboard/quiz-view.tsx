@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { apiFetch, ensureCsrfToken } from "@/lib/api";
 import type { Quiz } from "@/types/dashboard";
@@ -15,16 +15,15 @@ type QuizQuestion = {
 
 type FullQuiz = Quiz & { questions: QuizQuestion[] };
 
-export function QuizView() {
+export function QuizView({ quizzes, setDeleteTarget }: { quizzes: Quiz[], setDeleteTarget: (target: { id: number; type: 'conversation' | 'quiz' } | null) => void }) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
     
-    const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [activeQuiz, setActiveQuiz] = useState<FullQuiz | null>(null);
     const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [submissionResult, setSubmissionResult] = useState<FullQuiz | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [toast, setToast] = useState<string | null>(null);
@@ -35,6 +34,23 @@ export function QuizView() {
     const [topic, setTopic] = useState("");
     const [questionCount, setQuestionCount] = useState(5);
     const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+    const [isRandomizing, setIsRandomizing] = useState(false);
+
+    const randomizeTopic = async () => {
+        setIsRandomizing(true);
+        try {
+            const data = await apiFetch<{ topics: string[] }>("/quizzes/topics/random");
+            const topics = data.topics;
+            setTopic(topics[Math.floor(Math.random() * topics.length)]);
+        } catch (error) {
+            console.error("Failed to fetch random topics:", error);
+            // Fallback
+            const fallback = ["Quantum Physics", "World History", "Calculus", "JavaScript Closures", "Photosynthesis", "Macroeconomics", "Web Development", "Artificial Intelligence", "Organic Chemistry", "Art History"];
+            setTopic(fallback[Math.floor(Math.random() * fallback.length)]);
+        } finally {
+            setIsRandomizing(false);
+        }
+    };
 
     // Auto-dismiss toast
     useEffect(() => {
@@ -55,18 +71,20 @@ export function QuizView() {
         } else if (topicParam) {
             setTopic(topicParam);
             setShowCreateForm(true);
-            setLoading(false); // Ensure loading is disabled if we are going straight to form
+            setLoading(false); 
         } else {
-            fetchQuizzes();
+            setLoading(false);
         }
     }, [searchParams]);
 
-    const fetchQuizzes = async () => {
-        setLoading(true);
-        const data = await apiFetch<{ quizzes: Quiz[] }>("/quizzes");
-        setQuizzes(data.quizzes);
-        setLoading(false);
-    };
+    // Listen for quiz deletion event to reset active state
+    useEffect(() => {
+        const handleQuizDeleted = () => {
+            setActiveQuiz(null);
+        };
+        window.addEventListener('quizDeleted', handleQuizDeleted);
+        return () => window.removeEventListener('quizDeleted', handleQuizDeleted);
+    }, []);
 
     const createQuiz = async () => {
         if (!topic.trim()) {
@@ -81,7 +99,6 @@ export function QuizView() {
             method: "POST",
             body: JSON.stringify({ quizTopic: topic, questionCount, difficulty })
         });
-        await fetchQuizzes();
         window.dispatchEvent(new Event('refreshSidebar'));
         setShowCreateForm(false);
         setActiveQuiz(data.quiz);
@@ -134,7 +151,6 @@ export function QuizView() {
             const data = await apiFetch<{ quiz: FullQuiz }>(`/quizzes/${quizId}/reset`, {
                 method: "POST"
             });
-            await fetchQuizzes();
             window.dispatchEvent(new Event('refreshSidebar'));
             setActiveQuiz(data.quiz);
             setLoading(false);
@@ -149,13 +165,7 @@ export function QuizView() {
     };
 
     const deleteQuiz = async (quizId: number) => {
-        if (isProcessing) return;
-        setIsProcessing(true);
-        await ensureCsrfToken();
-        await apiFetch(`/quizzes/${quizId}`, { method: "DELETE" });
-        await fetchQuizzes();
-        window.dispatchEvent(new Event('refreshSidebar'));
-        setIsProcessing(false);
+        setDeleteTarget({ id: quizId, type: 'quiz' });
     };
 
     const handleOptionClick = (questionId: number, optionId: number) => {
@@ -184,7 +194,6 @@ export function QuizView() {
                 body: JSON.stringify({ answers })
             });
             setSubmissionResult(data.quiz);
-            await fetchQuizzes();
             window.dispatchEvent(new Event('refreshSidebar'));
         } catch (error) {
             console.error("Quiz submission failed:", error);
@@ -207,14 +216,30 @@ export function QuizView() {
                             {toast}
                         </div>
                     )}
-                    <h1 className="text-2xl font-bold text-foreground mb-6">Create New Quiz</h1>
-                    <div className="p-6 sm:p-8 rounded-2xl bg-slate-800/80 border border-indigo-500/20 shadow-lg backdrop-blur-sm space-y-6">
-                        <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topic..." className="w-full bg-slate-900 p-4 rounded-lg text-foreground border border-slate-700 focus:border-indigo-500 outline-none"/>                        
+                    <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">Create New Quiz</h1>
+                    <div className="p-4 sm:p-8 rounded-2xl bg-slate-800/80 border border-indigo-500/20 shadow-lg backdrop-blur-sm space-y-5 sm:space-y-6">
+                        <div className="relative flex gap-2">
+                            <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topic..." className="flex-1 bg-slate-900 p-3 sm:p-4 rounded-lg text-foreground border border-slate-700 focus:border-indigo-500 outline-none transition-all text-sm sm:text-base"/>                        
+                            <button 
+                                onClick={randomizeTopic} 
+                                disabled={isRandomizing}
+                                className="px-3 sm:px-4 rounded-lg bg-slate-700/50 text-indigo-400 hover:bg-slate-700 hover:text-indigo-300 transition-all border border-slate-700 hover:border-indigo-500/50 cursor-pointer disabled:opacity-50 disabled:cursor-wait" 
+                                title="Randomize Topic"
+                            >
+                                {isRandomizing ? (
+                                    <div className="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
                         
                         {/* Questions Slider */}
                         <div className="space-y-2">
                            <div className="flex items-center justify-between">
-                                <label className="block text-slate-400 font-bold text-xs">Questions</label>
+                                <label className="block text-slate-400 font-bold text-[10px] sm:text-xs uppercase">Questions</label>
                                 <span className="text-indigo-400 font-bold text-xs">{questionCount}</span>
                            </div>
                            <input 
@@ -229,8 +254,8 @@ export function QuizView() {
 
                         {/* Difficulty Checklist */}
                         <div className="space-y-2">
-                            <span className="text-slate-400 font-bold text-xs uppercase tracking-wider">Difficulty</span>
-                            <div className="grid grid-cols-3 gap-2">
+                            <span className="text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-wider">Difficulty</span>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                 {(['easy', 'medium', 'hard'] as ('easy' | 'medium' | 'hard')[]).map((d) => {
                                     // Color mapping
                                     const colorStyles = {
@@ -242,7 +267,7 @@ export function QuizView() {
                                         <button
                                             key={d}
                                             onClick={() => setDifficulty(d)}
-                                            className={`px-2 py-2 rounded-lg text-[10px] font-bold uppercase transition-all border ${colorStyles[d]} cursor-pointer`}
+                                            className={`px-3 py-2.5 rounded-lg text-xs font-bold uppercase transition-all border ${colorStyles[d]} cursor-pointer`}
                                         >
                                             {d}
                                         </button>
@@ -251,9 +276,11 @@ export function QuizView() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
-                            <button onClick={() => {setShowCreateForm(false); router.replace(`${pathname}?view=quiz`)}} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-slate-700 text-slate-300 font-bold hover:bg-slate-600 cursor-pointer order-2 sm:order-1">Cancel</button>
-                            <button onClick={createQuiz} disabled={isProcessing} className="flex-1 p-4 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-500 cursor-pointer order-1 sm:order-2">Create Quiz</button>
+                        <div className="border-t border-slate-700/50 pt-4">
+                            <div className="flex flex-col gap-3">
+                                <button onClick={createQuiz} disabled={isProcessing} className="w-full p-3.5 sm:p-4 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-500 cursor-pointer text-sm sm:text-base">Create Quiz</button>
+                                <button onClick={() => {setShowCreateForm(false); router.replace(`${pathname}?view=quiz`)}} disabled={isProcessing} className="w-full p-3.5 sm:p-4 rounded-lg bg-slate-700 text-slate-300 font-bold hover:bg-slate-600 cursor-pointer text-sm sm:text-base">Cancel</button>
+                            </div>
                         </div>
                     </div>
                 </div>

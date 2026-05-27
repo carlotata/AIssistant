@@ -51,7 +51,7 @@ function ProgressCards({ progress, onNavigate }: { progress: StudyProgress, onNa
 }
 
 export function StudyDashboard() {
-   const { logout } = useAuth();
+   const { logout, user } = useAuth();
    const searchParams = useSearchParams();
    const router = useRouter();
    const pathname = usePathname();
@@ -59,11 +59,18 @@ export function StudyDashboard() {
    const [activeView, setActiveView] = useState(() => searchParams.get("view") || "chat");
    const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
    const [summary, setSummary] = useState<DashboardSummary | null>(null);
-   const [messages, setMessages] = useState<ChatMessage[]>(createInitialMessages);
+   const [messages, setMessages] = useState<ChatMessage[]>(createInitialMessages());
    const [inputValue, setInputValue] = useState("");
    const [submitting, setSubmitting] = useState(false);
    const [isProcessing, setIsProcessing] = useState(false);
    const [sidebarOpen, setSidebarOpen] = useState(false);
+   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
+
+   useEffect(() => {
+       if (user) {
+           setMessages(createInitialMessages(user.name));
+       }
+   }, [user]);
 
    useEffect(() => {
        const view = searchParams.get("view") || "chat";
@@ -180,27 +187,64 @@ export function StudyDashboard() {
    };
 
    function startNewChat() {
-       setMessages(createInitialMessages());
+       setMessages(createInitialMessages(user?.name));
        setActiveConversationId(null);
        router.push(`${pathname}?view=chat`);
        setSidebarOpen(false);
    }
 
-   async function deleteConversation(id: number) {
-       await apiFetch(`/conversations/${id}`, { method: "DELETE" });
-       await loadSummary();
-       if (activeConversationId === id) {
-           startNewChat();
+   async function handleConfirmDelete() {
+       if (!deleteTarget) return;
+       const token = await ensureCsrfToken();
+       
+       if (deleteTarget.type === 'conversation') {
+           await apiFetch(`/conversations/${deleteTarget.id}`, { 
+               method: "DELETE",
+               headers: { 'X-CSRF-Token': token }
+           });
+           await loadSummary();
+           if (activeConversationId === deleteTarget.id) {
+               startNewChat();
+           }
+           await loadSummary();
+       } else {
+           await apiFetch(`/quizzes/${deleteTarget.id}`, { 
+               method: "DELETE",
+               headers: { 'X-CSRF-Token': token }
+           });
+           await loadSummary();
+           // If we are currently viewing the deleted quiz, navigate away
+           if (searchParams.get("view") === "quiz" && searchParams.get("quizId") === deleteTarget.id.toString()) {
+               router.replace(`${pathname}?view=quiz`);
+               window.dispatchEvent(new Event('quizDeleted'));
+           }
        }
+       window.dispatchEvent(new Event('refreshSidebar'));
+       setDeleteTarget(null);
+   }
+
+   async function deleteConversation(id: number) {
+       setDeleteTarget({ id, type: 'conversation' });
    }
 
    async function deleteQuiz(id: number) {
-       await apiFetch(`/quizzes/${id}`, { method: "DELETE" });
-       await loadSummary();
+       setDeleteTarget({ id, type: 'quiz' });
    }
 
    return (
-      <div className="flex h-screen bg-slate-950 text-white overflow-hidden relative">
+      <div className="flex h-screen bg-slate-950 text-white overflow-hidden w-full max-w-[100vw]">
+         {deleteTarget && (
+             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                 <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-slate-900 p-8 shadow-2xl animate-in zoom-in-95 duration-300">
+                     <h3 className="text-lg font-bold text-white mb-2">Delete {deleteTarget.type === 'conversation' ? 'Chat' : 'Quiz'}</h3>
+                     <p className="text-slate-400 text-sm mb-6">Are you sure? This action cannot be undone.</p>
+                     <div className="flex gap-3">
+                         <button onClick={() => setDeleteTarget(null)} className="flex-1 p-3 rounded-xl font-bold text-slate-400 hover:text-white cursor-pointer">Cancel</button>
+                         <button onClick={handleConfirmDelete} className="flex-1 p-3 rounded-xl font-bold bg-red-600 text-white hover:bg-red-500 cursor-pointer">Delete</button>
+                     </div>
+                 </div>
+             </div>
+         )}
          <ChatSidebar 
             conversations={summary?.recentConversations ?? []} 
             quizzes={summary?.recentQuizzes ?? []}
@@ -309,11 +353,15 @@ export function StudyDashboard() {
                           onQuickAction={(a) => pushChatPrompt(a.prompt)}
                           onNavigate={(view) => router.push(`${pathname}?view=${view}`)}
                           recentQuizzes={summary?.recentQuizzes ?? []}
+                          user={user}
                        />
                    </div>
                 ) : activeView === "quiz" ? (
                     <div className="p-4 sm:p-8 h-full overflow-y-auto">
-                        <QuizView />
+                        <QuizView 
+                            quizzes={summary?.recentQuizzes ?? []}
+                            setDeleteTarget={setDeleteTarget} 
+                        />
                     </div>
                 ) : activeView === "progress" ? (
                     <div className="p-4 sm:p-8 h-full overflow-y-auto">
