@@ -17,12 +17,12 @@ export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, 
 
     return (
         <div className="mt-4 p-5 rounded-2xl bg-slate-800/80 border border-indigo-500/20 shadow-lg backdrop-blur-sm space-y-4">
-            <div className="flex items-center justify-between">
-                <span className="text-indigo-400 font-bold text-sm">Quiz: {topic}</span>
+            <div className="flex items-baseline justify-between gap-3">
+                <span className="text-indigo-400 font-bold text-sm truncate">Quiz: {topic}</span>
                 {(!existingQuiz || existingQuiz.state !== 'COMPLETED') && (
                     <button 
                         onClick={() => setShowSettings(!showSettings)}
-                        className="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider cursor-pointer"
+                        className="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider cursor-pointer whitespace-nowrap"
                     >
                         {showSettings ? "Close Settings" : "Quiz Settings"}
                     </button>

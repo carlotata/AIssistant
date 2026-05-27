@@ -35,25 +35,25 @@ function AttachmentPreview({ file, onRemove, progress }: { file: UploadedFile | 
     const isImage = type.startsWith('image/');
 
     return (
-        <div className="relative flex items-center gap-3 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 animate-in slide-in-from-bottom-2 fade-in duration-200 min-w-50 max-w-sm">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-indigo-500 text-white overflow-hidden">
+        <div className="group relative flex items-center gap-2.5 p-2 pr-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-indigo-500/50 transition-all min-w-[200px] max-w-sm">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded bg-indigo-500/10 text-indigo-400 overflow-hidden border border-indigo-500/20">
                 {isImage && isUploaded ? (
                     <img src={`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}${file.url}`} alt={name} className="h-full w-full object-cover" />
                 ) : (
-                    <FileIcon className="h-5 w-5" />
+                    <FileIcon className="h-4 w-4" />
                 )}
             </div>
             <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-white truncate">{name}</p>
+                <p className="text-xs font-bold text-slate-200 truncate">{name}</p>
                 {progress !== undefined && progress < 100 ? (
-                    <div className="mt-1 h-1 w-full bg-slate-700 rounded-full overflow-hidden">
+                    <div className="mt-1 h-0.5 w-full bg-slate-700 rounded-full overflow-hidden">
                         <div className="h-full bg-indigo-500 transition-all duration-300" style={{ width: `${progress}%` }} />
                     </div>
                 ) : (
-                    <p className="text-[10px] text-indigo-300 uppercase tracking-widest">{isUploaded ? 'Ready to send' : 'Preparing...'}</p>
+                    <p className="text-[9px] text-slate-500 uppercase tracking-wider">{isUploaded ? 'Attached' : 'Uploading...'}</p>
                 )}
             </div>
-            <button onClick={onRemove} className="p-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer bg-slate-800/50 rounded-full">
+            <button onClick={onRemove} className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-white transition-opacity cursor-pointer">
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
         </div>
