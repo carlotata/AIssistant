@@ -69,8 +69,8 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
                 </div>
                 <div className="p-5 sm:p-6 rounded-lg bg-slate-900 border border-white/5 shadow-sm">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total Study Time</p>
-                    <p className="text-3xl sm:text-4xl font-black text-white mt-2 sm:mt-3">{(progress as any)?.activeDays * 45}m</p>
-                    <p className="text-xs text-indigo-400 mt-1">Estimated minutes</p>
+                    <p className="text-3xl sm:text-4xl font-black text-white mt-2 sm:mt-3">{(progress as any)?.totalMinutes ?? 0}m</p>
+                    <p className="text-xs text-indigo-400 mt-1">Actual minutes</p>
                 </div>
             </div>
 

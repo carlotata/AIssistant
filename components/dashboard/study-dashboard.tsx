@@ -67,6 +67,36 @@ export function StudyDashboard() {
    const [sidebarOpen, setSidebarOpen] = useState(false);
    const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
 
+   // Session Tracking
+   useEffect(() => {
+        let sessionId: number | null = null;
+        let heartbeatInterval: NodeJS.Timeout | null = null;
+        
+        async function startSession() {
+            try {
+                const response = await apiFetch<{sessionId: number}>("/sessions/start", { method: "POST" });
+                sessionId = response.sessionId;
+                
+                // Set up heartbeat
+                heartbeatInterval = setInterval(async () => {
+                    if (sessionId) {
+                        await apiFetch("/sessions/heartbeat", { method: "POST", body: JSON.stringify({ sessionId }) });
+                    }
+                }, 60000); // 60 seconds
+            } catch (err) { console.error("Failed to start session", err); }
+        }
+        
+        async function endSession() {
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+            if (sessionId) {
+                await apiFetch("/sessions/end", { method: "POST", body: JSON.stringify({ sessionId }) });
+            }
+        }
+        
+        startSession();
+        return () => { endSession(); };
+   }, []);
+
    useEffect(() => {
        const view = searchParams.get("view") || "chat";
        setActiveView(view);
@@ -75,12 +105,10 @@ export function StudyDashboard() {
        if (conversationId && activeConversationId !== parseInt(conversationId)) {
            loadConversation({ id: parseInt(conversationId) } as Conversation);
        }
-       // Close sidebar on navigation (mobile)
        setSidebarOpen(false);
    }, [searchParams]);
 
    async function loadSummary() {
-      console.log("DEBUG: Loading dashboard summary...");
       const data = await apiFetch<DashboardSummary>("/dashboard/summary");
       setSummary(data);
    }
@@ -88,7 +116,6 @@ export function StudyDashboard() {
    useEffect(() => {
       void ensureCsrfToken().then(loadSummary);
       
-      // Listen for global data refresh requests
       window.addEventListener('refreshSidebar', loadSummary);
       return () => window.removeEventListener('refreshSidebar', loadSummary);
    }, []);
@@ -108,7 +135,6 @@ export function StudyDashboard() {
    };
 
    const pushChatPrompt = async (prompt: string, searchMode: boolean = false, attachments: UploadedFile[] = []) => {
-      console.log("DEBUG: Processing prompt with attachments", { prompt, attachments });
       if (!prompt.trim() && attachments.length === 0) return;
       
       setSubmitting(true);
@@ -122,12 +148,10 @@ export function StudyDashboard() {
           attachments: attachments.map(a => ({ name: a.originalName, type: a.mimeType, url: a.url }))
       };
       
-      // Optimistically add user message
       setMessages(prev => [...prev, userMessage]);
       
       try {
          let convId = activeConversationId;
-         // Ensure we have a conversation context established
          if (!convId) {
              const conv = await apiFetch<{ conversation: Conversation }>("/conversations", {
                  method: "POST",
@@ -139,8 +163,6 @@ export function StudyDashboard() {
              router.push(`${pathname}?view=chat&conversationId=${convId}`);
          }
 
-         // Send request with full context
-         console.log("DEBUG: Sending context to API...");
          const data = await apiFetch<{ messages: Message[] }> (`/conversations/${convId}/messages`, {
             method: "POST",
             body: JSON.stringify({ 
@@ -155,11 +177,8 @@ export function StudyDashboard() {
             }),
          });
          
-         // Response processing: Update with server-side result
          if (data?.messages) {
-             console.log("DEBUG: API Response received", data.messages);
              const newMessages = data.messages.filter(m => !messages.find(prev => prev.id === m.id.toString()));
-             
              setMessages(prev => [...prev, ...newMessages.map(m => ({ 
                  id: m.id.toString(), 
                  role: m.role as "user" | "assistant", 
@@ -169,7 +188,6 @@ export function StudyDashboard() {
              }))]);
          }
       } catch (err) {
-          console.error("DEBUG: Failed to send prompt", err);
           setMessages(prev => [...prev, { 
               id: createMessageId(), 
               role: "assistant", 
@@ -201,14 +219,12 @@ export function StudyDashboard() {
            if (activeConversationId === deleteTarget.id) {
                startNewChat();
            }
-           await loadSummary();
        } else {
            await apiFetch(`/quizzes/${deleteTarget.id}`, { 
                method: "DELETE",
                headers: { 'X-CSRF-Token': token }
            });
            await loadSummary();
-           // If we are currently viewing the deleted quiz, navigate away
            if (searchParams.get("view") === "quiz" && searchParams.get("quizId") === deleteTarget.id.toString()) {
                router.replace(`${pathname}?view=quiz`);
                window.dispatchEvent(new Event('quizDeleted'));
@@ -270,14 +286,6 @@ export function StudyDashboard() {
             onDeleteQuiz={deleteQuiz}
          />
          
-         {/* Overlay for mobile sidebar */}
-         {sidebarOpen && (
-             <div 
-                className="fixed inset-0 z-20 bg-black/60 backdrop-blur-sm lg:hidden"
-                onClick={() => setSidebarOpen(false)}
-             />
-         )}
-
          <main className="flex-1 overflow-hidden flex flex-col relative min-w-0">
             <header className="sticky top-0 z-10 border-b border-white/5 p-4 bg-slate-950/80 backdrop-blur-sm flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
@@ -299,11 +307,7 @@ export function StudyDashboard() {
                    <div className="p-4 sm:p-8 h-full overflow-y-auto">
                        <div className="flex flex-col gap-8 max-w-7xl mx-auto lg:grid lg:grid-cols-3">
                           <div className="lg:col-span-2 flex flex-col items-center sm:items-stretch space-y-6 sm:space-y-10">
-                              {/* Hero Section: Centered on Mobile */}
                               <div className="w-full rounded-2xl border border-white/5 bg-linear-to-b from-indigo-600/20 to-transparent p-8 sm:p-10 text-center sm:text-left">
-                                  <div className="mx-auto sm:mx-0 mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-400">
-                                      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                                  </div>
                                   <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight">{getGreeting(user?.name)}</h1>
                                   <p className="text-slate-400 mt-3 text-base sm:text-lg max-w-lg mx-auto sm:mx-0">You&apos;ve completed 2 lessons this week. Ready to jump into something new?</p>
                                   <button onClick={() => router.push(`${pathname}?view=chat`)} className="mt-8 px-8 py-3.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 cursor-pointer">
@@ -318,8 +322,6 @@ export function StudyDashboard() {
                                   />
                               </div>
                           </div>
-
-                          {/* Side Panel: Left-aligned content for efficiency */}
                           <div className="w-full max-w-md mx-auto lg:max-w-none lg:mx-0">
                             <AIDashboardPanel 
                                 recommendations={summary?.recommendations ?? []}
