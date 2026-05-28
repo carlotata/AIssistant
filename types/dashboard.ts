@@ -35,6 +35,7 @@ export type Quiz = {
   quizTopic: string;
   score: number | null;
   state: "GENERATED" | "COMPLETED";
+  difficulty: 'easy' | 'medium' | 'hard';
   createdAt: string;
   updatedAt: string;
   questions?: QuizQuestion[];
