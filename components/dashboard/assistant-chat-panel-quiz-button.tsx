@@ -95,10 +95,10 @@ export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, 
                     )}
                 </button>
             ) : (
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                     <button 
                         onClick={() => onNavigate(`quiz&quizId=${existingQuiz.id}`)}
-                        className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-500 transition-colors cursor-pointer"
+                        className="w-full flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-500 transition-colors cursor-pointer"
                     >
                         View Results
                     </button>
@@ -114,7 +114,7 @@ export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, 
                             onNavigate(`quiz&quizId=${response.quiz.id}`);
                         }}
                         disabled={isGenerating}
-                        className="flex-1 rounded-xl bg-slate-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-600 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="w-full flex-1 rounded-xl bg-slate-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-600 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {isGenerating ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Retake"}
                     </button>
