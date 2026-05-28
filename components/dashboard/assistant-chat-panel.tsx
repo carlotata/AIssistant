@@ -175,7 +175,8 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
                                         prose-headings:mt-1 prose-headings:mb-0.5 prose-headings:font-bold">
                                         <ReactMarkdown 
                                             components={{
-                                                a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline cursor-pointer" />
+                                                a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline cursor-pointer" />,
+                                                pre: ({node, ...props}) => <pre {...props} className="overflow-x-auto p-3 rounded-lg bg-slate-950 text-xs" />
                                             }}
                                         >{cleanContent}</ReactMarkdown>
                                     </div>
