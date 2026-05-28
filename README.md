@@ -18,6 +18,7 @@ AIssistant is an intelligent academic study assistant designed to help students 
     - `icons/`: Consolidated SVG components.
 - `constants/`: Shared constants and configuration.
 - `lib/`: Shared utilities (API client, Auth context).
+- `tests/`: End-to-end testing suite.
 - `types/`: Global TypeScript definitions.
 
 ## Key Features
