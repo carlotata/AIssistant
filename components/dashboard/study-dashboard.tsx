@@ -328,7 +328,7 @@ export function StudyDashboard() {
                                 onTakeQuiz={(topic) => router.push(`${pathname}?view=quiz&topic=${encodeURIComponent(topic)}`)} 
                                 onReviewWeakTopics={() => {
                                     const weakTopic = summary?.recommendations?.[0]?.topic;
-                                    if (weakTopic) router.push(`${pathname}?view=quiz&topic=${encodeURIComponent(weakTopic)}`);
+                                    if (weakTopic) pushChatPrompt(`I want to review and discuss about ${weakTopic} to improve my understanding.`);
                                 }}
                             />
                           </div>
@@ -367,6 +367,10 @@ export function StudyDashboard() {
                                 const lastConv = summary?.recentConversations[0];
                                 if (lastConv) loadConversation(lastConv);
                                 else router.push(`${pathname}?view=chat`);
+                            }}
+                            onStudyTopic={(topic) => {
+                                router.push(`${pathname}?view=chat`);
+                                pushChatPrompt(`I want to review and discuss about ${topic} to improve my understanding.`);
                             }}
                         />
                     </div>

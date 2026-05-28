@@ -8,9 +8,10 @@ import type { StudyProgress } from "@/types/dashboard";
 type ProgressViewProps = {
     onNavigate: (view: string) => void;
     onResume: () => void;
+    onStudyTopic: (topic: string) => void;
 };
 
-export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
+export function ProgressView({ onNavigate, onResume, onStudyTopic }: ProgressViewProps) {
     const [progress, setProgress] = useState<StudyProgress | null>(null);
     const [topicBreakdown, setTopicBreakdown] = useState<Record<string, number>>({});
     const [insights, setInsights] = useState<string[]>([]);
@@ -109,7 +110,7 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
                                     </div>
                                     {extractedTopic && (
                                         <button 
-                                            onClick={() => onNavigate(`quiz&topic=${encodeURIComponent(extractedTopic)}`)}
+                                            onClick={() => onStudyTopic(extractedTopic)}
                                             className="w-full text-center text-xs font-bold text-indigo-400 hover:text-indigo-300 cursor-pointer transition-colors mt-1"
                                         >
                                             Study {extractedTopic} Now →
