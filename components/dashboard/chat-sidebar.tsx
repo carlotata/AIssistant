@@ -157,16 +157,16 @@ export function ChatSidebar({ conversations, quizzes, currentView, isOpen, onClo
                     >
                         <div className="flex items-center gap-2">
                             <svg className={`h-2.5 w-2.5 text-slate-500 transition-transform duration-200 ${quizzesExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>
-                            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-slate-300">Quizzes</h3>
+                            <h3 className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest group-hover:text-slate-300">Quizzes</h3>
                         </div>
                     </button>
                     
                     {quizzesExpanded && (
                         <div className="space-y-0.5 mt-0.5">
                             {filteredQuizzes.length === 0 ? (
-                                <p className="px-7 text-[10px] text-slate-700 italic">{searchQuery ? "No matches" : "Empty"}</p>
+                                <p className="px-7 text-[10px] lg:text-xs text-slate-700 italic">{searchQuery ? "No matches" : "Empty"}</p>
                             ) : filteredQuizzes.map((quiz) => (
-                                <div key={quiz.id} className="pl-4">
+                                <div key={quiz.id} className="pl-4 pr-1">
                                     <QuizSidebarItem 
                                         quiz={quiz} 
                                         onTakeQuiz={onTakeQuiz} 
@@ -186,21 +186,21 @@ export function ChatSidebar({ conversations, quizzes, currentView, isOpen, onClo
                     >
                         <div className="flex items-center gap-2">
                             <svg className={`h-2.5 w-2.5 text-slate-500 transition-transform duration-200 ${chatsExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>
-                            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-slate-300">History</h3>
+                            <h3 className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest group-hover:text-slate-300">History</h3>
                         </div>
                     </button>
 
                     {chatsExpanded && (
                         <div className="space-y-0.5 mt-0.5">
                             {filteredConversations.length === 0 ? (
-                                <p className="px-7 text-[10px] text-slate-700 italic">{searchQuery ? "No matches" : "Empty"}</p>
+                                <p className="px-7 text-[10px] lg:text-xs text-slate-700 italic">{searchQuery ? "No matches" : "Empty"}</p>
                             ) : filteredConversations.map((conv) => (
                                 <div key={conv.id} className="pl-4 pr-1">
-                                    <div className="flex items-center justify-between px-2 py-1.5 text-xs text-slate-400 hover:bg-slate-800 rounded group transition-colors">
+                                    <div className="flex items-center justify-between px-2 py-1.5 text-[10px] lg:text-xs text-slate-400 hover:bg-slate-800 rounded-lg group transition-colors">
                                         <button onClick={() => onSelectConversation(conv)} className="flex-1 text-left truncate hover:text-white transition-colors cursor-pointer">
                                             {conv.title || "Untitled"}
                                         </button>
-                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                                             <OptionsMenu onView={() => onSelectConversation(conv)} onDelete={() => onDeleteConversation(conv.id)} />
                                         </div>
                                     </div>
@@ -240,7 +240,7 @@ function QuizSidebarItem({ quiz, onTakeQuiz, onRetakeQuiz, onDeleteClick }: { qu
     };
 
     return (
-        <div className="flex items-center justify-between px-4 py-2 text-sm text-slate-400 hover:bg-slate-800/50 rounded-lg group transition-colors">
+        <div className="flex items-center justify-between px-2 py-1.5 text-[10px] lg:text-xs text-slate-400 hover:bg-slate-800 rounded-lg group transition-colors">
             <button 
                 onClick={() => !isGenerating && onTakeQuiz(quiz.id)} 
                 className={`truncate flex-1 text-left transition-colors cursor-pointer ${isGenerating ? 'opacity-50 cursor-not-allowed' : 'hover:text-white'}`}
