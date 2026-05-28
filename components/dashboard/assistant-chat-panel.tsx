@@ -204,7 +204,7 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
              </div>
          <footer className="border-t border-white/5 p-4 bg-slate-900 relative">
             {showToast && (
-                <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 px-4 py-2 rounded-full bg-slate-800 border border-emerald-500/30 text-emerald-400 text-xs font-bold shadow-xl animate-in fade-in zoom-in-95 duration-300 pointer-events-none">
+                <div className="absolute -top-10 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 w-fit mx-auto sm:w-max z-20 px-3 py-1.5 rounded-full bg-slate-800 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold shadow-xl animate-in fade-in zoom-in-95 duration-300 pointer-events-none text-center">
                     Web Search Mode Enabled
                 </div>
             )}

@@ -121,7 +121,7 @@ export function LogView({ userId }: { userId?: number }) {
           filteredLogs.map((log) => (
             <div key={log.id} className="flex flex-col sm:flex-row sm:items-start justify-between bg-slate-900/50 p-3 rounded-lg text-[11px] gap-2 border border-white/5">
               <div className="min-w-0 flex-1">
-                <p className="text-slate-200 font-medium break-words">{log.action}</p>
+                <p className="text-slate-200 font-medium wrap-break-word">{log.action}</p>
                 {log.user && (
                   <p className="text-slate-500 mt-0.5 break-all">
                     {log.user.name} • {log.user.email}

@@ -93,11 +93,12 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
 
                 <div className="p-6 sm:p-8 rounded-lg bg-slate-900 border border-white/5 flex flex-col">
                     <h2 className="text-lg font-bold text-white mb-6">Recent Insights</h2>
-                    <div className="flex-1 overflow-y-auto space-y-4 max-h-[400px] pr-2 scrollbar-hide">
+                    <div className="flex-1 overflow-y-auto space-y-4 max-h-100 pr-2 scrollbar-hide">
                         {insights.length === 0 ? (
                             <p className="text-slate-500 text-sm italic text-center py-10">No insights generated yet. Keep studying!</p>
                         ) : insights.map((insight, index) => {
-                            const reviewMatch = insight.match(/Consider reviewing\s+([a-zA-Z0-9\s]+?)(?=\,|$)/i);
+                            // Updated regex to be more flexible, allowing commas and spaces in the topic extraction
+                            const reviewMatch = insight.match(/Consider reviewing\s+(.+?)(?=\,|\.|\s+is|\s+your|$)/i);
                             const extractedTopic = reviewMatch ? reviewMatch[1].trim() : null;
 
                             return (
@@ -123,7 +124,7 @@ export function ProgressView({ onNavigate, onResume }: ProgressViewProps) {
                            New Quiz
                         </button>
                         <button onClick={onResume} className="flex-1 px-4 py-3 bg-slate-800 text-slate-200 text-sm font-bold rounded-lg hover:bg-slate-700 transition-colors cursor-pointer">
-                           Resume
+                            Resume Chat
                         </button>
                     </div>
                 </div>
