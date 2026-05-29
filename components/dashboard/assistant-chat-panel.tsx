@@ -63,7 +63,7 @@ function AttachmentPreview({ file, onRemove, progress, isDeletable = true }: { f
                 )}
             </div>
             {isDeletable && (
-                <button onClick={onRemove} className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-slate-950/50 text-slate-500 hover:text-white hover:bg-red-500/20 transition-all cursor-pointer">
+                <button onClick={onRemove} className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-1.5 rounded-lg bg-slate-950/50 text-slate-500 hover:text-white hover:bg-red-500/20 transition-all cursor-pointer">
                     <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             )}
