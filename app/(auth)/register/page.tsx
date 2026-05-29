@@ -65,10 +65,10 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-slate-950 font-sans">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-x-hidden bg-slate-950 font-sans">
       {/* Decorative ambient background glows */}
-      <div className="absolute top-[-10%] left-[-10%] h-[50%] w-[50%] rounded-full bg-blue-500/10 blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] h-[50%] w-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
+      <div className="fixed top-[-10%] left-[-10%] h-[50%] w-[50%] rounded-full bg-blue-500/10 blur-[120px]" />
+      <div className="fixed bottom-[-10%] right-[-10%] h-[50%] w-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
 
       <div className="relative z-10 w-full max-w-md px-6 py-12">
         {/* Brand Header */}
