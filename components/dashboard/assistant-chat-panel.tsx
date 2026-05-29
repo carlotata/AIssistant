@@ -258,14 +258,14 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
                </button>
             </div>
             
-            <div className="mt-4 flex flex-row gap-2 justify-between">
+            <div className="mt-4 flex flex-row gap-2 justify-between sm:justify-start sm:w-fit">
                {quickActions.map((action) => (
                   <button 
                     key={action.id} 
                     type="button" 
                     onClick={() => !submitting && !uploading && onQuickAction(action)} 
                     disabled={submitting || uploading} 
-                    className="flex-1 truncate rounded-lg border border-white/5 bg-slate-800 px-2 sm:px-3 py-1.5 sm:py-2 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-indigo-500 hover:text-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="flex-1 sm:flex-none truncate rounded-lg border border-white/5 bg-slate-800 px-3 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-indigo-500 hover:text-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                   >
                     {action.label}
                   </button>
