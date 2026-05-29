@@ -120,7 +120,15 @@ export function StudyDashboard() {
         async function endSession() {
             if (heartbeatInterval) clearInterval(heartbeatInterval);
             if (sessionId) {
-                await apiFetch("/sessions/end", { method: "POST", body: JSON.stringify({ sessionId }) });
+                try {
+                    await apiFetch("/sessions/end", { method: "POST", body: JSON.stringify({ sessionId }) });
+                } catch (err: any) {
+                    // Ignore "Authentication is required" errors during cleanup
+                    // as the session may have already been invalidated.
+                    if (err.code !== "AUTH_REQUIRED") {
+                        console.warn("Failed to end session:", err);
+                    }
+                }
             }
         }
         
