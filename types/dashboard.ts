@@ -90,4 +90,5 @@ export type DashboardSummary = {
   recentQuizzes: Quiz[];
   studyProgress: StudyProgress;
   recommendations: { topic: string, questions: number }[];
+  lessonsCompletedThisWeek: number;
 };

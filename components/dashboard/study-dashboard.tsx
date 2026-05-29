@@ -3,18 +3,39 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { apiFetch, ensureCsrfToken } from "@/lib/api";
-import { createInitialMessages, QUICK_ACTIONS } from "@/constants/dashboard";
+import { createInitialMessages, DYNAMIC_TOPICS } from "@/constants/dashboard";
 import { AssistantChatPanel } from "./assistant-chat-panel";
 import { ChatSidebar } from "./chat-sidebar";
 import { ChatIcon, ListChecksIcon, TrendUpIcon } from "../icons/dashboard-icons";
 import { QuizView } from "./quiz-view";
 import { ProgressView } from "./progress-view";
 import { AIDashboardPanel } from "./ai-dashboard-panel";
-import type { ChatMessage, DashboardSummary, Quiz, StudyProgress, Conversation, Message, DeleteTarget } from "@/types/dashboard";
+import type { ChatMessage, DashboardSummary, Quiz, StudyProgress, Conversation, Message, DeleteTarget, QuickAction } from "@/types/dashboard";
 import { useAuth } from "@/lib/auth-context";
-import { getGreeting } from "@/constants/greetings";
+import { getGreeting, getProgressMessage } from "@/constants/greetings";
 
 import { useFileUpload, type UploadedFile } from "@/lib/use-file-upload";
+
+// Helper for dynamic quick actions
+function getQuickActions(): QuickAction[] {
+    return [
+        { 
+            id: "action-summary", 
+            label: "Explain Topic", 
+            prompt: "Pick a random interesting topic and explain it to me in simple terms." 
+        },
+        { 
+            id: "action-quiz", 
+            label: "Random Quiz", 
+            prompt: "Pick a random topic and create a 5-question quiz for me." 
+        },
+        { 
+            id: "action-plan", 
+            label: "Study Plan", 
+            prompt: "Pick a random academic topic and create a 30-minute study plan for it." 
+        },
+    ];
+}
 
 function createMessageId() {
    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -66,6 +87,16 @@ export function StudyDashboard() {
    const [isProcessing, setIsProcessing] = useState(false);
    const [sidebarOpen, setSidebarOpen] = useState(false);
    const [deleteTarget, setDeleteTarget] = useState<DeleteTarget>(null);
+
+   // Memoize greetings to prevent re-randomization on re-renders
+   const [dashboardGreeting] = useState(() => getGreeting(user?.name));
+   const [progressMessage, setProgressMessage] = useState(() => getProgressMessage(0));
+   
+   useEffect(() => {
+       if (summary?.lessonsCompletedThisWeek !== undefined) {
+           setProgressMessage(getProgressMessage(summary.lessonsCompletedThisWeek));
+       }
+   }, [summary?.lessonsCompletedThisWeek]);
 
    // Session Tracking
    useEffect(() => {
@@ -308,8 +339,10 @@ export function StudyDashboard() {
                        <div className="flex flex-col gap-8 max-w-7xl mx-auto lg:grid lg:grid-cols-3">
                           <div className="lg:col-span-2 flex flex-col items-center sm:items-stretch space-y-6 sm:space-y-10">
                               <div className="w-full rounded-2xl border border-white/5 bg-linear-to-b from-indigo-600/20 to-transparent p-8 sm:p-10 text-center sm:text-left">
-                                  <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight">{getGreeting(user?.name)}</h1>
-                                  <p className="text-slate-400 mt-3 text-base sm:text-lg max-w-lg mx-auto sm:mx-0">You&apos;ve completed 2 lessons this week. Ready to jump into something new?</p>
+                                  <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight">{dashboardGreeting}</h1>
+                                  <p className="text-slate-400 mt-3 text-base sm:text-lg max-w-lg mx-auto sm:mx-0">
+                                      {progressMessage} You&apos;ve completed {summary?.lessonsCompletedThisWeek ?? 0} lessons this week.
+                                  </p>
                                   <button onClick={() => router.push(`${pathname}?view=chat`)} className="mt-8 px-8 py-3.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 cursor-pointer">
                                       Start Study Session
                                   </button>
@@ -341,7 +374,7 @@ export function StudyDashboard() {
                           inputValue={inputValue}
                           submitting={submitting}
                           className="h-full w-full"
-                          quickActions={QUICK_ACTIONS}
+                          quickActions={getQuickActions()}
                           onInputChange={setInputValue}
                           onSubmitMessage={(content, searchMode, attachments) => { 
                           pushChatPrompt(content, searchMode, attachments); 
