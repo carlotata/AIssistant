@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { QuizGeneratorButton } from "./assistant-chat-panel-quiz-button";
+import { Toast } from "../shared/toast";
 import { SendIcon, SparklesIcon, PlusIcon, FileIcon, GlobeIcon } from "../icons/dashboard-icons";
 import type { ChatMessage, QuickAction, Quiz } from "@/types/dashboard";
 import { useFileUpload, type UploadedFile } from "@/lib/use-file-upload";
@@ -94,6 +95,7 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
    const [attachments, setAttachments] = useState<UploadedFile[]>([]);
    const [isDragging, setIsDragging] = useState(false);
    const { uploadFile, uploading, progress } = useFileUpload();
+   const [uploadError, setUploadError] = useState<string | null>(null);
    
    const toggleSearchMode = () => {
        const nextMode = !searchMode;
@@ -120,6 +122,8 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
               if (!inputValue.trim()) {
                   onInputChange(getRandomStudyPrompt());
               }
+          } else {
+              setUploadError("Failed to upload file. Please ensure it is a supported type and under 10MB.");
           }
       }
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -211,6 +215,7 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
                 <div ref={messagesEndRef} />
              </div>
          <footer className="border-t border-white/5 p-4 bg-slate-900 relative">
+            {uploadError && <Toast message={uploadError} onClose={() => setUploadError(null)} />}
             {showToast && (
                 <div className="absolute -top-10 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 w-fit mx-auto sm:w-max z-20 px-3 py-1.5 rounded-full bg-slate-800 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold shadow-xl animate-in fade-in zoom-in-95 duration-300 pointer-events-none text-center">
                     Web Search Mode Enabled

@@ -10,6 +10,20 @@ export type UploadedFile = {
     extractedText?: string;
 };
 
+export const ALLOWED_MIME_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+    "application/msword", // .doc
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+    "text/plain",
+];
+
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 export function useFileUpload() {
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -19,6 +33,19 @@ export function useFileUpload() {
         setUploading(true);
         setProgress(0);
         setError(null);
+
+        // Validation
+        if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+            setError(`File type ${file.type} is not supported.`);
+            setUploading(false);
+            return null;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            setError("File size exceeds the 10MB limit.");
+            setUploading(false);
+            return null;
+        }
 
         try {
             const csrfToken = await ensureCsrfToken();
