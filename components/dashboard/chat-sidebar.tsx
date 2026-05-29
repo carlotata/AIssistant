@@ -197,7 +197,7 @@ export function ChatSidebar({ conversations, quizzes, currentView, isOpen, onClo
                             ) : filteredConversations.map((conv) => (
                                 <div key={conv.id} className="pl-4 pr-1">
                                     <div className="flex items-center justify-between px-2 py-1.5 text-[10px] lg:text-xs text-slate-400 hover:bg-slate-800 rounded-lg group transition-colors">
-                                        <button onClick={() => onSelectConversation(conv)} className="flex-1 text-left truncate hover:text-white transition-colors cursor-pointer">
+                                        <button onClick={() => onSelectConversation(conv)} className="flex-1 min-w-0 text-left truncate hover:text-white transition-colors cursor-pointer">
                                             {conv.title || "Untitled"}
                                         </button>
                                         <div className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
@@ -243,7 +243,7 @@ function QuizSidebarItem({ quiz, onTakeQuiz, onRetakeQuiz, onDeleteClick }: { qu
         <div className="flex items-center justify-between px-2 py-1.5 text-[10px] lg:text-xs text-slate-400 hover:bg-slate-800 rounded-lg group transition-colors">
             <button 
                 onClick={() => !isGenerating && onTakeQuiz(quiz.id)} 
-                className={`truncate flex-1 text-left transition-colors cursor-pointer ${isGenerating ? 'opacity-50 cursor-not-allowed' : 'hover:text-white'}`}
+                className={`truncate flex-1 min-w-0 text-left transition-colors cursor-pointer ${isGenerating ? 'opacity-50 cursor-not-allowed' : 'hover:text-white'}`}
                 disabled={isGenerating}
             >
                 {quiz.quizTopic}

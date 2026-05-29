@@ -211,26 +211,26 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
             )}
             {attachments.length > 0 && <div className="mb-4 flex flex-wrap gap-2">{attachments.map((file, i) => <AttachmentPreview key={i} file={file} onRemove={() => removeAttachment(i)} isDeletable={!submitting && !uploading} />)}</div>}
             
-            <div className={`relative flex items-center rounded-xl border transition-all duration-300 ${submitting || uploading ? 'border-indigo-500/20 bg-slate-900/50 opacity-60' : 'border-slate-700 bg-slate-800 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20'} p-1.5`}>
+            <div className={`relative flex items-center rounded-xl border transition-all duration-300 ${submitting || uploading ? 'border-indigo-500/20 bg-slate-900/50 opacity-60' : 'border-slate-700 bg-slate-800 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20'} p-1 sm:p-1.5`}>
                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" multiple disabled={submitting || uploading} />
-               <div className="flex items-center">
+               <div className="flex items-center gap-0.5 sm:gap-1">
                   <button 
                     type="button" 
                     onClick={handleFileTrigger} 
                     disabled={submitting || uploading} 
-                    className="p-2 rounded-lg cursor-pointer text-slate-400 hover:text-white disabled:cursor-not-allowed disabled:hover:text-slate-600 transition-colors" 
+                    className="p-1.5 sm:p-2 rounded-lg cursor-pointer text-slate-400 hover:text-white disabled:cursor-not-allowed disabled:hover:text-slate-600 transition-colors" 
                     title="Attach"
                   >
-                    {uploading ? <div className="h-5 w-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /> : <PlusIcon className="h-5 w-5" />}
+                    {uploading ? <div className="h-4 w-4 sm:h-5 sm:w-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /> : <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5" />}
                   </button>
                   <button 
                     type="button" 
                     onClick={toggleSearchMode} 
                     disabled={submitting || uploading}
-                    className={`p-2 rounded-lg cursor-pointer transition-all ${searchMode ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-400 hover:text-white'} disabled:opacity-30 disabled:cursor-not-allowed`} 
+                    className={`p-1.5 sm:p-2 rounded-lg cursor-pointer transition-all ${searchMode ? 'text-emerald-400 bg-emerald-500/10' : 'text-slate-400 hover:text-white'} disabled:opacity-30 disabled:cursor-not-allowed`} 
                     title="Search"
                   >
-                    <GlobeIcon className="h-5 w-5" />
+                    <GlobeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                </div>
                <input 
@@ -238,27 +238,27 @@ export function AssistantChatPanel({ messages, inputValue, submitting = false, c
                  onChange={(e) => onInputChange(e.target.value)} 
                  onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }} 
                  disabled={submitting || uploading} 
-                 placeholder={uploading ? "Uploading files..." : submitting ? "AIssistant is responding..." : (searchMode ? "Searching live web..." : "Message AIssistant...")} 
-                 className="flex-1 bg-transparent px-2 text-[14px] text-white outline-none placeholder:text-slate-500 disabled:cursor-not-allowed" 
+                 placeholder={uploading ? "..." : submitting ? "..." : (searchMode ? "Searching..." : "Message...")} 
+                 className="flex-1 bg-transparent px-1.5 sm:px-2 text-[13px] sm:text-[14px] text-white outline-none placeholder:text-slate-500 disabled:cursor-not-allowed" 
                />
                <button 
                  type="button" 
                  onClick={handleSubmit} 
                  disabled={submitting || uploading || (!inputValue.trim() && attachments.length === 0)} 
-                 className="p-2 text-indigo-400 hover:text-white disabled:text-slate-600 disabled:cursor-not-allowed transition-colors"
+                 className="p-1.5 sm:p-2 text-indigo-400 hover:text-white disabled:text-slate-600 disabled:cursor-not-allowed transition-colors"
                >
-                 {submitting ? <SparklesIcon className="h-5 w-5 animate-pulse" /> : <SendIcon className="h-5 w-5" />}
+                 {submitting ? <SparklesIcon className="h-4 w-4 sm:h-5 sm:w-5 animate-pulse" /> : <SendIcon className="h-4 w-4 sm:h-5 sm:w-5" />}
                </button>
             </div>
             
-            <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
+            <div className="mt-4 flex flex-row gap-2 justify-between">
                {quickActions.map((action) => (
                   <button 
                     key={action.id} 
                     type="button" 
                     onClick={() => !submitting && !uploading && onQuickAction(action)} 
                     disabled={submitting || uploading} 
-                    className="flex-grow sm:flex-grow-0 rounded-lg border border-white/5 bg-slate-800 px-3 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-indigo-500 hover:text-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    className="flex-1 truncate rounded-lg border border-white/5 bg-slate-800 px-2 sm:px-3 py-1.5 sm:py-2 text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-indigo-500 hover:text-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                   >
                     {action.label}
                   </button>
