@@ -10,8 +10,15 @@ import { getRandomStudyPrompt } from "@/constants/study-prompts";
 const getQuizTopicForMessage = (messages: ChatMessage[], messageIndex: number) => {
     const precedingMessages = messages.slice(0, messageIndex + 1).reverse();
     for (const msg of precedingMessages) {
-        const topicMatch = msg.content.match(/(?:topic|about|on)\s+([a-zA-Z0-9\s]{1,40}?)(?=\.|\?|!|$|\s+and|\s+that)/i);
+        // First, check for explicit topic indicators
+        const topicPattern = /(?:topic|about|on|for|with)\s+([a-zA-Z0-9\s]{1,40}?)(?=\.|\?|!|$|\s+and|\s+that|\s+quiz)/i;
+        const topicMatch = msg.content.match(topicPattern);
         if (topicMatch) return topicMatch[1].trim();
+        
+        // Then check for "[Topic] quiz" structure, capturing only the last word
+        const quizPattern = /\b([a-zA-Z0-9]+)\s+quiz/i;
+        const quizMatch = msg.content.match(quizPattern);
+        if (quizMatch) return quizMatch[1].trim();
     }
     return "General Study Topic";
 };

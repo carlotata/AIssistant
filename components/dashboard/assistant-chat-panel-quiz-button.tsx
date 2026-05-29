@@ -10,6 +10,8 @@ export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, 
     const [isGenerating, setIsGenerating] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     
+    const capitalizedTopic = topic.charAt(0).toUpperCase() + topic.slice(1);
+
     const existingQuiz = recentQuizzes.find(q => 
         q.quizTopic.toLowerCase().includes(topic.toLowerCase()) && 
         Number((q as any).conversationId) === Number(conversationId)
@@ -18,7 +20,7 @@ export function QuizGeneratorButton({ topic, count, conversationId, onNavigate, 
     return (
         <div className="mt-4 p-5 rounded-2xl bg-slate-800/80 border border-indigo-500/20 shadow-lg backdrop-blur-sm space-y-4">
             <div className="flex items-baseline justify-between gap-3">
-                <span className="text-indigo-400 font-bold text-sm truncate">Quiz: {topic}</span>
+                <span className="text-indigo-400 font-bold text-sm truncate max-w-[70%]">Quiz: {capitalizedTopic}</span>
                 {(!existingQuiz || existingQuiz.state !== 'COMPLETED') && (
                     <button 
                         onClick={() => setShowSettings(!showSettings)}
